@@ -2,7 +2,8 @@
 
 namespace SimpleSAML\Module\negotiate\Auth\Source;
 
-use \SimpleSAML\Logger;
+use SimpleSAML\Logger;
+use Webmozart\Assert\Assert;
 
 /**
  * The Negotiate module. Allows for password-less, secure login by Kerberos and Negotiate.
@@ -72,8 +73,8 @@ class Negotiate extends \SimpleSAML\Auth\Source
      */
     public function __construct($info, $config)
     {
-        assert(is_array($info));
-        assert(is_array($config));
+        Assert::isArray($info);
+        Assert::isArray($config);
 
         if (!extension_loaded('krb5')) {
             throw new \Exception('KRB5 Extension not installed');
@@ -81,22 +82,22 @@ class Negotiate extends \SimpleSAML\Auth\Source
         // call the parent constructor first, as required by the interface
         parent::__construct($info, $config);
 
-        $config = \SimpleSAML\Configuration::loadFromArray($config);
+        $cfg = \SimpleSAML\Configuration::loadFromArray($config);
 
-        $this->backend = $config->getString('fallback');
-        $this->hostname = $config->getString('hostname');
-        $this->port = $config->getInteger('port', 389);
-        $this->referrals = $config->getBoolean('referrals', true);
-        $this->enableTLS = $config->getBoolean('enable_tls', false);
-        $this->debugLDAP = $config->getBoolean('debugLDAP', false);
-        $this->timeout = $config->getInteger('timeout', 30);
-        $this->keytab = \SimpleSAML\Utils\Config::getCertPath($config->getString('keytab'));
-        $this->base = $config->getArrayizeString('base');
-        $this->attr = $config->getArrayizeString('attr', 'uid');
-        $this->subnet = $config->getArray('subnet', null);
-        $this->admin_user = $config->getString('adminUser', null);
-        $this->admin_pw = $config->getString('adminPassword', null);
-        $this->attributes = $config->getArray('attributes', null);
+        $this->backend = $cfg->getString('fallback');
+        $this->hostname = $cfg->getString('hostname');
+        $this->port = $cfg->getInteger('port', 389);
+        $this->referrals = $cfg->getBoolean('referrals', true);
+        $this->enableTLS = $cfg->getBoolean('enable_tls', false);
+        $this->debugLDAP = $cfg->getBoolean('debugLDAP', false);
+        $this->timeout = $cfg->getInteger('timeout', 30);
+        $this->keytab = \SimpleSAML\Utils\Config::getCertPath($cfg->getString('keytab'));
+        $this->base = $cfg->getArrayizeString('base');
+        $this->attr = $cfg->getArrayizeString('attr', 'uid');
+        $this->subnet = $cfg->getArray('subnet', null);
+        $this->admin_user = $cfg->getString('adminUser', null);
+        $this->admin_pw = $cfg->getString('adminPassword', null);
+        $this->attributes = $cfg->getArray('attributes', null);
     }
 
 
@@ -114,7 +115,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
      */
     public function authenticate(&$state)
     {
-        assert(is_array($state));
+        Assert::isArray($state);
 
         // set the default backend to config
         $state['LogoutState'] = [
@@ -382,7 +383,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
      */
     public function logout(&$state)
     {
-        assert(is_array($state));
+        Assert::isArray($state);
         // get the source that was used to authenticate
         $authId = $state['negotiate:backend'];
         Logger::debug('Negotiate - logout has the following authId: "'.$authId.'"');
