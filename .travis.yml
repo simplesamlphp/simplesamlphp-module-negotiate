@@ -17,7 +17,7 @@ matrix:
     - php: 7.3
 
 before_script:
-  - sudo pecl install krb5
+  - pecl install krb5
   - composer require "simplesamlphp/simplesamlphp:${SIMPLESAMLPHP_VERSION}" --no-update
   - composer update --no-interaction
   - if [[ "$TRAVIS_PHP_VERSION" == "7.3" ]]; then composer require --dev vimeo/psalm; fi
