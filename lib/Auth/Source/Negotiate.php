@@ -16,7 +16,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
     // Constants used in the module
     const STAGEID = '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate.StageId';
 
-    /** @var \SimpleSAML\Auth\LDAP|null */
+    /** @var \SimpleSAML\Module\ldap\Auth\Ldap|null */
     protected $ldap = null;
 
     /** @var string */
@@ -151,7 +151,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
         Logger::debug('Negotiate - authenticate(): looking for Negotiate');
         if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
             Logger::debug('Negotiate - authenticate(): Negotiate found');
-            $this->ldap = new \SimpleSAML\Auth\LDAP(
+            $this->ldap = new \SimpleSAML\Module\ldap\Auth\Ldap(
                 $this->hostname,
                 $this->enableTLS,
                 $this->debugLDAP,
