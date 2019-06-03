@@ -31,7 +31,7 @@
         "ext-krb5": "*",
 
         "simplesamlphp/composer-module-installer": "~1.1",
-        "simplesamlphp/simplesamlphp-module-ldap": "^1.0",
+        "simplesamlphp/simplesamlphp-module-ldap": "^0.9",
         "webmozart/assert": "~1.4"
     },
     "require-dev": {
