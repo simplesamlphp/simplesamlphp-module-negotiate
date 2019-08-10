@@ -36,10 +36,10 @@
     },
     "require-dev": {
         "simplesamlphp/simplesamlphp": "^1.17",
-        "phpunit/phpunit": "~5.7"
+        "simplesamlphp/simplesamlphp-test-framework": "^0.0.10"
     },
     "support": {
-        "issues": "https://github.com/tvdijen/simplesamlphp-module-negotiate/issues",
-        "source": "https://github.com/tvdijen/simplesamlphp-module-negotiate"
+        "issues": "https://github.com/simplesamlphp/simplesamlphp-module-negotiate/issues",
+        "source": "https://github.com/simplesamlphp/simplesamlphp-module-negotiate"
     }
 }
