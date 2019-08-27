@@ -28,7 +28,6 @@
     },
     "require": {
         "php": ">=5.6",
-        "ext-krb5": "*",
 
         "simplesamlphp/composer-module-installer": "~1.1",
         "simplesamlphp/simplesamlphp-module-ldap": "^0.9",
