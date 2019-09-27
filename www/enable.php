@@ -6,15 +6,16 @@
  * @package SimpleSAMLphp
  */
 
-$params = [
-    'secure' => false,
-    'httponly' => true,
-];
-\SimpleSAML\Utils\HTTP::setCookie('NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT', null, $params, false);
+namespace SimpleSAML\Module\negotiate;;
 
-$globalConfig = \SimpleSAML\Configuration::getInstance();
-$session = \SimpleSAML\Session::getSessionFromRequest();
-$session->setData('negotiate:disable', 'session', false, 86400); // 24*60*60=86400
-$t = new \SimpleSAML\XHTML\Template($globalConfig, 'negotiate:enable.twig');
-$t->data['url'] = \SimpleSAML\Module::getModuleURL('negotiate/disable.php');
-$t->send();
+use SimpleSAML\Configuration;
+use SimpleSAML\Session;
+use Symfony\Component\HttpFoundation\Request;
+
+$config = Configuration::getInstance();
+$session = Session::getSessionFromRequest();
+$request = Request::createFromGlobals();
+$authState = $request->get('authState');
+$controller = new Controller\Negotiate($config, $session);
+$response = $controller->enable($authState);
+$response->send();
