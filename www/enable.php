@@ -5,6 +5,7 @@
  *         <mathias.meisfjordskar@usit.uio.no>
  * @package SimpleSAMLphp
  */
+
 $params = [
     'secure' => false,
     'httponly' => true,
