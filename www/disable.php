@@ -1,10 +1,10 @@
 <?php
+
 /**
  * @author Mathias Meisfjordskar, University of Oslo.
  *         <mathias.meisfjordskar@usit.uio.no>
  * @package SimpleSAMLphp
  */
-
 $params = [
     'expire' => (mktime(0, 0, 0, 1, 1, 2038)),
     'secure' => false,

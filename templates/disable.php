@@ -7,6 +7,7 @@
  *         <mathias.meisfjordskar@usit.uio.no>
  * @package SimpleSAMLphp
  */
+
 $this->includeAtTemplateBase('includes/header.php');
 ?>
 <h1><?php echo $this->t('{negotiate:negotiate:disable_title}'); ?></h1>

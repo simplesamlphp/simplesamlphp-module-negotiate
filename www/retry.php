@@ -7,7 +7,6 @@
  * @package SimpleSAMLphp
  *
  */
-
 $state = \SimpleSAML\Auth\State::loadState(
     $_REQUEST['AuthState'],
     \SimpleSAML\Module\negotiate\Auth\Source\Negotiate::STAGEID
@@ -20,7 +19,7 @@ $idpmeta = $metadata->getMetaData($idpid, 'saml20-idp-hosted');
 if (isset($idpmeta['auth'])) {
     $source = \SimpleSAML\Auth\Source::getById($idpmeta['auth']);
     if ($source === null) {
-        throw new \SimpleSAML\Error\BadRequest('Invalid AuthId "'.$idpmeta['auth'].'" - not found.');
+        throw new \SimpleSAML\Error\BadRequest('Invalid AuthId "' . $idpmeta['auth'] . '" - not found.');
     }
 
     $session = \SimpleSAML\Session::getSessionFromRequest();
