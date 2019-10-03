@@ -2,7 +2,7 @@
 
 namespace SimpleSAML\Module\negotiate\Auth\Source;
 
-use \SimpleSAML\Logger;
+use SimpleSAML\Logger;
 
 /**
  * The Negotiate module. Allows for password-less, secure login by Kerberos and Negotiate.
@@ -10,7 +10,6 @@ use \SimpleSAML\Logger;
  * @author Mathias Meisfjordskar, University of Oslo <mathias.meisfjordskar@usit.uio.no>
  * @package SimpleSAMLphp
  */
-
 class Negotiate extends \SimpleSAML\Auth\Source
 {
     // Constants used in the module
@@ -132,9 +131,10 @@ class Negotiate extends \SimpleSAML\Auth\Source
         $session = \SimpleSAML\Session::getSessionFromRequest();
         $disabled = $session->getData('negotiate:disable', 'session');
 
-        if ($disabled ||
-            (!empty($_COOKIE['NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT']) &&
-                $_COOKIE['NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT'] == 'True')
+        if (
+            $disabled
+            || (!empty($_COOKIE['NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT'])
+                && $_COOKIE['NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT'] == 'True')
         ) {
             Logger::debug('Negotiate - session disabled. falling back');
             $this->fallBack($state);
@@ -174,14 +174,14 @@ class Negotiate extends \SimpleSAML\Auth\Source
             try {
                 $reply = $auth->doAuthentication();
             } catch (\Exception $e) {
-                Logger::error('Negotiate - authenticate(): doAuthentication() exception: '.$e->getMessage());
+                Logger::error('Negotiate - authenticate(): doAuthentication() exception: ' . $e->getMessage());
                 $reply = null;
             }
 
             if ($reply) {
                 // success! krb TGS received
                 $user = $auth->getAuthenticatedUser();
-                Logger::info('Negotiate - authenticate(): '.$user.' authenticated.');
+                Logger::info('Negotiate - authenticate(): ' . $user . ' authenticated.');
                 $lookup = $this->lookupUserData($user);
                 if ($lookup !== null) {
                     $state['Attributes'] = $lookup;
@@ -189,7 +189,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
                     $state['LogoutState'] = [
                         'negotiate:backend' => null,
                     ];
-                    Logger::info('Negotiate - authenticate(): '.$user.' authorized.');
+                    Logger::info('Negotiate - authenticate(): ' . $user . ' authorized.');
                     \SimpleSAML\Auth\Source::completeAuth($state);
                     // Never reached.
                     assert(false);
@@ -202,7 +202,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
             // No auth token. Send it.
             Logger::debug('Negotiate - authenticate(): Sending Negotiate.');
             // Save the $state array, so that we can restore if after a redirect
-            Logger::debug('Negotiate - fallback: '.$state['LogoutState']['negotiate:backend']);
+            Logger::debug('Negotiate - fallback: ' . $state['LogoutState']['negotiate:backend']);
             $id = \SimpleSAML\Auth\State::saveState($state, self::STAGEID);
             $params = ['AuthState' => $id];
 
@@ -255,11 +255,11 @@ class Negotiate extends \SimpleSAML\Auth\Source
         foreach ($this->subnet as $cidr) {
             $ret = \SimpleSAML\Utils\Net::ipCIDRcheck($cidr);
             if ($ret) {
-                Logger::debug('Negotiate: Client "'.$ip.'" matched subnet.');
+                Logger::debug('Negotiate: Client "' . $ip . '" matched subnet.');
                 return true;
             }
         }
-        Logger::debug('Negotiate: Client "'.$ip.'" did not match subnet.');
+        Logger::debug('Negotiate: Client "' . $ip . '" did not match subnet.');
         return false;
     }
 
@@ -342,7 +342,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
             $dn = $this->ldap->searchfordn($this->base, $this->attr, $uid);
             return $this->ldap->getAttributes($dn, $this->attributes);
         } catch (\SimpleSAML\Error\Exception $e) {
-            Logger::debug('Negotiate - ldap lookup failed: '.$e);
+            Logger::debug('Negotiate - ldap lookup failed: ' . $e);
             return null;
         }
     }
@@ -361,11 +361,12 @@ class Negotiate extends \SimpleSAML\Auth\Source
             // no admin user
             return;
         }
-        Logger::debug('Negotiate - authenticate(): Binding as system user '.var_export($this->admin_user, true));
+        Logger::debug('Negotiate - authenticate(): Binding as system user ' . var_export($this->admin_user, true));
 
         if (!$this->ldap->bind($this->admin_user, $this->admin_pw)) {
-            $msg = 'Unable to authenticate system user (LDAP_INVALID_CREDENTIALS) '.var_export($this->admin_user, true);
-            Logger::error('Negotiate - authenticate(): '.$msg);
+            $msg = 'Unable to authenticate system user (LDAP_INVALID_CREDENTIALS) '
+                . var_export($this->admin_user, true);
+            Logger::error('Negotiate - authenticate(): ' . $msg);
             throw new \SimpleSAML\Error\AuthSource('negotiate', $msg);
         }
     }
@@ -385,7 +386,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
         assert(is_array($state));
         // get the source that was used to authenticate
         $authId = $state['negotiate:backend'];
-        Logger::debug('Negotiate - logout has the following authId: "'.$authId.'"');
+        Logger::debug('Negotiate - logout has the following authId: "' . $authId . '"');
 
         if ($authId === null) {
             $session = \SimpleSAML\Session::getSessionFromRequest();
