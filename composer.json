@@ -35,7 +35,7 @@
         "webmozart/assert": "~1.4"
     },
     "require-dev": {
-        "simplesamlphp/simplesamlphp": "^1.17",
+        "simplesamlphp/simplesamlphp": "^1.18",
         "simplesamlphp/simplesamlphp-test-framework": "^0.0.10"
     },
     "support": {
