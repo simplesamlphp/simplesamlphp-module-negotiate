@@ -16,6 +16,6 @@ $params = [
 $globalConfig = \SimpleSAML\Configuration::getInstance();
 $session = \SimpleSAML\Session::getSessionFromRequest();
 $session->setData('negotiate:disable', 'session', false, 86400); //24*60*60=86400
-$t = new \SimpleSAML\XHTML\Template($globalConfig, 'negotiate:disable.php');
+$t = new \SimpleSAML\XHTML\Template($globalConfig, 'negotiate:disable.twig');
 $t->data['url'] = \SimpleSAML\Module::getModuleURL('negotiate/enable.php');
-$t->show();
+$t->send();
