@@ -8,7 +8,7 @@
  * @package SimpleSAMLphp
  */
 
-/** @psalm-var \SimpleSAML\Auth\State $state */
+/** @psalm-var array $state */
 $state = \SimpleSAML\Auth\State::loadState(
     $_REQUEST['AuthState'],
     \SimpleSAML\Module\negotiate\Auth\Source\Negotiate::STAGEID
