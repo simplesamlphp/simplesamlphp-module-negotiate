@@ -17,7 +17,6 @@ matrix:
     - php: 7.3
 
 before_script:
-  - pecl install krb5
   - composer require "simplesamlphp/simplesamlphp:${SIMPLESAMLPHP_VERSION}" --no-update
   - composer update --no-interaction
 
