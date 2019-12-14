@@ -305,7 +305,12 @@ class Negotiate extends \SimpleSAML\Auth\Source
         if ($authId === null) {
             throw new \SimpleSAML\Error\Error([500, "Unable to determine auth source."]);
         }
+
+        /** @psalm-var \SimpleSAML\Module\negotiate\Auth\Source\Negotiate|null $source */
         $source = \SimpleSAML\Auth\Source::getById($authId);
+        if ($source === null) {
+            throw new \Exception('Could not find authentication source with id ' . $state[self::AUTHID]);
+        }
 
         try {
             $source->authenticate($state);
@@ -394,7 +399,11 @@ class Negotiate extends \SimpleSAML\Auth\Source
             $session->setData('negotiate:disable', 'session', true, 24 * 60 * 60);
             parent::logout($state);
         } else {
+            /** @psalm-var \SimpleSAML\Module\negotiate\Auth\Source\Negotiate|null $source */
             $source = \SimpleSAML\Auth\Source::getById($authId);
+            if ($source === null) {
+                throw new \Exception('Could not find authentication source with id ' . $state[self::AUTHID]);
+            }
             $source->logout($state);
         }
     }
