@@ -16,6 +16,8 @@ class Negotiate extends \SimpleSAML\Auth\Source
     // Constants used in the module
     const STAGEID = '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate.StageId';
 
+    const AUTHID = '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate..AuthId';
+
     /** @var \SimpleSAML\Module\ldap\Auth\Ldap|null */
     protected $ldap = null;
 
