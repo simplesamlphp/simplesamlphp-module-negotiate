@@ -3,7 +3,6 @@
 namespace SimpleSAML\Module\negotiate\Auth\Source;
 
 use SimpleSAML\Logger;
-use Webmozart\Assert\Assert;
 
 /**
  * The Negotiate module. Allows for password-less, secure login by Kerberos and Negotiate.
@@ -14,12 +13,12 @@ use Webmozart\Assert\Assert;
 class Negotiate extends \SimpleSAML\Auth\Source
 {
     // Constants used in the module
-    const STAGEID = '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate.StageId';
+    public const STAGEID = '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate.StageId';
 
-    const AUTHID = '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate..AuthId';
+    public const AUTHID = '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate..AuthId';
 
-    /** @var \SimpleSAML\Module\ldap\Auth\Ldap|null */
-    protected $ldap = null;
+    /** @var \SimpleSAML\Module\ldap\Auth\Ldap */
+    protected $ldap;
 
     /** @var string */
     protected $backend = '';
@@ -72,11 +71,8 @@ class Negotiate extends \SimpleSAML\Auth\Source
      *
      * @throws \Exception If the KRB5 extension is not installed or active.
      */
-    public function __construct($info, $config)
+    public function __construct(array $info, array $config)
     {
-        Assert::isArray($info);
-        Assert::isArray($config);
-
         if (!extension_loaded('krb5')) {
             throw new \Exception('KRB5 Extension not installed');
         }
@@ -114,10 +110,8 @@ class Negotiate extends \SimpleSAML\Auth\Source
      * @param array &$state Information about the current authentication.
      * @return void
      */
-    public function authenticate(&$state)
+    public function authenticate(array &$state): void
     {
-        Assert::isArray($state);
-
         // set the default backend to config
         $state['LogoutState'] = [
             'negotiate:backend' => $this->backend,
@@ -224,7 +218,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
      * @param array $spMetadata
      * @return bool
      */
-    public function spDisabledInMetadata($spMetadata)
+    public function spDisabledInMetadata(array $spMetadata): bool
     {
         if (array_key_exists('negotiate:disable', $spMetadata)) {
             if ($spMetadata['negotiate:disable'] == true) {
@@ -248,7 +242,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
      *
      * @return bool
      */
-    public function checkMask()
+    public function checkMask(): bool
     {
         // No subnet means all clients are accepted.
         if ($this->subnet === null) {
@@ -274,7 +268,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
      * @param array $params additional parameters to the URL in the URL in the body.
      * @return void
      */
-    protected function sendNegotiate($params)
+    protected function sendNegotiate(array $params): void
     {
         $config = \SimpleSAML\Configuration::getInstance();
 
@@ -283,10 +277,10 @@ class Negotiate extends \SimpleSAML\Auth\Source
         header('HTTP/1.1 401 Unauthorized');
         header('WWW-Authenticate: Negotiate', false);
 
-        $t = new \SimpleSAML\XHTML\Template($config, 'negotiate:redirect.php');
+        $t = new \SimpleSAML\XHTML\Template($config, 'negotiate:redirect.twig');
         $t->data['baseurlpath'] = \SimpleSAML\Module::getModuleURL('negotiate');
         $t->data['url'] = $url;
-        $t->show();
+        $t->send();
     }
 
 
@@ -300,7 +294,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
      * @throws \SimpleSAML\Error\Exception
      * @throws \Exception
      */
-    public static function fallBack(&$state)
+    public static function fallBack(array &$state): void
     {
         $authId = $state['LogoutState']['negotiate:backend'];
 
@@ -336,7 +330,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
      *
      * @return array|null The attributes for the user or NULL if not found.
      */
-    protected function lookupUserData($user)
+    protected function lookupUserData(string $user): ?array
     {
         // Kerberos user names include realm. Strip that away.
         $pos = strpos($user, '@');
@@ -347,6 +341,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
 
         $this->adminBind();
         try {
+            /** @psalm-var string $dn */
             $dn = $this->ldap->searchfordn($this->base, $this->attr, $uid);
             return $this->ldap->getAttributes($dn, $this->attributes);
         } catch (\SimpleSAML\Error\Exception $e) {
@@ -363,9 +358,9 @@ class Negotiate extends \SimpleSAML\Auth\Source
      * @return void
      * @throws \SimpleSAML\Error\AuthSource
      */
-    protected function adminBind()
+    protected function adminBind(): void
     {
-        if ($this->admin_user === null) {
+        if ($this->admin_user === null || $this->admin_pw === null) {
             // no admin user
             return;
         }
@@ -389,9 +384,8 @@ class Negotiate extends \SimpleSAML\Auth\Source
      * @param array &$state Information about the current logout operation.
      * @return void
      */
-    public function logout(&$state)
+    public function logout(array &$state): void
     {
-        Assert::isArray($state);
         // get the source that was used to authenticate
         $authId = $state['negotiate:backend'];
         Logger::debug('Negotiate - logout has the following authId: "' . $authId . '"');
