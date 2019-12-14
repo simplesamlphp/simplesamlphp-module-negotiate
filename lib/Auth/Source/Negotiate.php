@@ -68,7 +68,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
      * @param array $info Information about this authentication source.
      * @param array $config The configuration of the module
      *
-     * @throws Exception If the KRB5 extension is not installed or active.
+     * @throws \Exception If the KRB5 extension is not installed or active.
      */
     public function __construct($info, $config)
     {
