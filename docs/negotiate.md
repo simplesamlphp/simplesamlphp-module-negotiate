@@ -58,7 +58,9 @@ All configuration is handled in authsources.php:
              'hostname' => 'ldap.example.com',
              'base' => 'cn=people,dc=example,dc=com',
              'adminUser' => 'cn=idp-fallback,cn=services,dc=example,dc=com',
-             'adminPassword' => 'VerySecretPassphraseHush'
+             'adminPassword' => 'VerySecretPassphraseHush',
+             'referrals' => true,
+             'spn' => null
      ],
      'ldap' => [
              'ldap:LDAP',
@@ -73,13 +75,17 @@ All configuration is handled in authsources.php:
 ### `php_krb5`
 
 The processing involving the actual Kerberos ticket handling is done
-by php_krb5. The package is not yet labeled stable but has worked well
-during testing.
+by php_krb5.
 
-NOTE! php_krb5 hardcodes the service name in the keytab file to 'HTTP'
-as of php_krb5-1.0rc2. To change this you need to edit the module code.
-Be wary of how much space is allocated to the string in
-`negotiate_auth.c:101`.
+NOTE! If running using virtual hosts or behind a reverse proxy, you
+might need to change the 'spn' variable to '0' (match any entry in the
+keytab file) or set it to the specific entry to are trying to match.
+This requires php-krb5 >= 1.1.3:
+
+    'spn' => '0',
+
+    'spn' => 'HTTP/host',
+
 
 Depending on you apache config you may need a rewrite rule to allow
 php_krb5 to read the HTTP_AUTHORIZATION header:
@@ -131,11 +137,11 @@ Kerberos. A domain can contain lots of kiosk users, non-personal
 accounts and the likes. The LDAP lookup will authorize and fetch
 attributes as defined by SimpleSamlPhp metadata.
 
-'hostname', 'enable_tls', 'debugLDAP', 'timeout' and 'base' are
-self-explanatory. Read the documentation of the LDAP auth module for
-more information. 'attr' is the attribute that will be used to look up
-user objects in the directory after extracting it from the Kerberos
-session. Default is 'uid'.
+'hostname', 'enable_tls', 'debugLDAP', 'timeout', 'base' and
+'referrals' are self-explanatory. Read the documentation of the LDAP
+auth module for more information. 'attr' is the attribute that will
+be used to look up user objects in the directory after extracting it
+from the Kerberos session. Default is 'uid'.
 
 For LDAP directories with restricted access to objects or attributes
 Negotiate implements 'adminUser' and 'adminPassword'. adminUser must
