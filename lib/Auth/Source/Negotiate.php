@@ -42,6 +42,9 @@ class Negotiate extends \SimpleSAML\Auth\Source
     /** @var string */
     protected $keytab = '';
 
+    /** @var string|null */
+    protected $spn = null;
+
     /** @var array */
     protected $base = [];
 
@@ -96,6 +99,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
         $this->admin_user = $config->getString('adminUser', null);
         $this->admin_pw = $config->getString('adminPassword', null);
         $this->attributes = $config->getArray('attributes', null);
+        $this->spn = $config->getString('spn', null);
     }
 
 
@@ -169,7 +173,17 @@ class Negotiate extends \SimpleSAML\Auth\Source
                 }
             }
 
-            $auth = new \KRB5NegotiateAuth($this->keytab);
+            if ($this->spn === null) {
+                // old FQDN behavior
+                $auth = new \KRB5NegotiateAuth($this->keytab);
+            } elseif ($this->spn === '0') {
+                // \KRB5NegotiateAuth constructor expects (long)0 value as second
+                // parameter if you need GSS_C_NO_NAME (match any entry) behavior
+                $auth = new \KRB5NegotiateAuth($this->keytab, 0);
+            } else {
+                $auth = new \KRB5NegotiateAuth($this->keytab, $this->spn);
+            }
+
             // attempt Kerberos authentication
             try {
                 $reply = $auth->doAuthentication();
