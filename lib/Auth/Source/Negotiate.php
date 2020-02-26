@@ -3,6 +3,7 @@
 namespace SimpleSAML\Module\negotiate\Auth\Source;
 
 use SimpleSAML\Logger;
+use Webmozart\Assert\Assert;
 
 /**
  * The Negotiate module. Allows for password-less, secure login by Kerberos and Negotiate.
@@ -43,6 +44,9 @@ class Negotiate extends \SimpleSAML\Auth\Source
 
     /** @var string */
     protected $keytab = '';
+
+    /** @var string|integer|null */
+    protected $spn = null;
 
     /** @var array */
     protected $base = [];
@@ -95,6 +99,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
         $this->admin_user = $cfg->getString('adminUser', null);
         $this->admin_pw = $cfg->getString('adminPassword', null);
         $this->attributes = $cfg->getArray('attributes', null);
+        $this->spn = $cfg->getValue('spn', null);
     }
 
 
@@ -166,7 +171,9 @@ class Negotiate extends \SimpleSAML\Auth\Source
                 }
             }
 
-            $auth = new \KRB5NegotiateAuth($this->keytab);
+            Assert::true(is_string($this->spn) || (is_int($this->spn) && ($this->spn === 0)) || is_null($this->spn));
+            $auth = new \KRB5NegotiateAuth($this->keytab, $this->spn);
+
             // attempt Kerberos authentication
             try {
                 $reply = $auth->doAuthentication();
