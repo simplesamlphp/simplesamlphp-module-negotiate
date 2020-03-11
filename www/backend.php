@@ -8,11 +8,12 @@
  * @package SimpleSAMLphp
  */
 
+/** @psalm-var array $state */
 $state = \SimpleSAML\Auth\State::loadState(
     $_REQUEST['AuthState'],
     \SimpleSAML\Module\negotiate\Auth\Source\Negotiate::STAGEID
 );
-\SimpleSAML\Logger::debug('backend - fallback: '.$state['LogoutState']['negotiate:backend']);
+\SimpleSAML\Logger::debug('backend - fallback: ' . $state['LogoutState']['negotiate:backend']);
 
 \SimpleSAML\Module\negotiate\Auth\Source\Negotiate::fallBack($state);
 
