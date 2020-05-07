@@ -48,10 +48,9 @@ class Negotiate
     /**
      * Show enable.
      *
-     * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \SimpleSAML\XHTML\Template
      */
-    public function enable(Request $request): Template
+    public function enable(): Template
     {
         $params = [
             'secure' => false,
@@ -72,10 +71,9 @@ class Negotiate
     /**
      * Show disable.
      *
-     * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \SimpleSAML\XHTML\Template
      */
-    public function disable(Request $request): Template
+    public function disable(): Template
     {
         $params = [
             'expire' => mktime(0, 0, 0, 1, 1, 2038),
