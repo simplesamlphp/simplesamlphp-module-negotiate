@@ -37,8 +37,8 @@ class NegotiateController
     /** @var \SimpleSAML\Logger|string */
     protected $logger = Logger::class;
 
-    /** @var \SimpleSAML\Metadata\MetaDataStorageHandler|string */
-    protected $metadataHandler = MetaDataStorageHandler::class;
+    /** @var \SimpleSAML\Metadata\MetaDataStorageHandler|null */
+    protected $metadataHandler = null;
 
     /** @var \SimpleSAML\Module|string */
     protected $module = Module::class;
@@ -96,6 +96,17 @@ class NegotiateController
     public function setLogger(Logger $logger): void
     {
         $this->logger = $logger;
+    }
+
+
+    /**
+     * Get the metadata storage handler instance.
+     *
+     * @return MetaDataStorageHandler
+     */
+    protected function getMetadataStorageHandler(): MetaDataStorageHandler
+    {
+        return $this->metadataHandler ?: MetaDataStorageHandler::getMetadataHandler();
     }
 
 
@@ -195,9 +206,9 @@ class NegotiateController
         /** @psalm-var array $state */
         $state = $this->authState::loadState($authState, Negotiate::STAGEID);
 
-        $metadata = $this->metadataHandler::getMetadataHandler();
-        $idpid = $metadata->getMetaDataCurrentEntityID('saml20-idp-hosted', 'metaindex');
-        $idpmeta = $metadata->getMetaData($idpid, 'saml20-idp-hosted');
+        $mdh = $this->getMetadataStorageHandler();
+        $idpid = $mdh->getMetaDataCurrentEntityID('saml20-idp-hosted', 'metaindex');
+        $idpmeta = $mdh->getMetaData($idpid, 'saml20-idp-hosted');
 
         if (isset($idpmeta['auth'])) {
             $source = $this->authSource::getById($idpmeta['auth']);
