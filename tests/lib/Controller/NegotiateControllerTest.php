@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace SimpleSAML\Test\Module\negotiate\Controller;
 
 use PHPUnit\Framework\TestCase;
-//use SimpleSAML\Auth;
 use SimpleSAML\Configuration;
-//use SimpleSAML\Error;
+use SimpleSAML\Error;
+use SimpleSAML\HTTP\RunnableResponse;
 use SimpleSAML\Module\negotiate\Controller;
 use SimpleSAML\Session;
 use SimpleSAML\XHTML\Template;
-//use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -60,10 +59,10 @@ class NegotiateTest extends TestCase
             'GET'
         );
 
-        $c = new Controller\Negotiate($this->config, $this->session);
+        $c = new Controller\NegotiateController($this->config, $this->session);
 
         /** @var \SimpleSAML\XHTML\Template $response */
-        $response = $c->enable($request, null);
+        $response = $c->enable($request);
 
         $this->assertInstanceOf(Template::class, $response);
         $this->assertTrue($response->isSuccessful());
@@ -81,12 +80,117 @@ class NegotiateTest extends TestCase
             'GET'
         );
 
-        $c = new Controller\Negotiate($this->config, $this->session);
+        $c = new Controller\NegotiateController($this->config, $this->session);
 
         /** @var \SimpleSAML\XHTML\Template $response */
-        $response = $c->disable($request, null);
+        $response = $c->disable($request);
 
         $this->assertInstanceOf(Template::class, $response);
         $this->assertTrue($response->isSuccessful());
+    }
+
+
+    /**
+     * Test that a valid requests results in a RunnableResponse
+     * @return void
+    public function testRetry(): void
+    {
+        $request = Request::create(
+            '/retry',
+            'GET',
+            ['AuthState' => 'someState'],
+        );
+
+        $c = new Controller\NegotiateController($this->config, $this->session);
+
+        $response = $c->retry($request);
+
+        $this->assertInstanceOf(RunnableResponse::class, $response);
+        $this->assertTrue($response->isSuccessful());
+    }
+     */
+
+
+
+    /**
+     * Test that an invalid AuthState results in a NOSTATE-error
+     * @return void
+     */
+    public function testRetryInvalidState(): void
+    {
+        $request = Request::create(
+            '/retry',
+            'GET',
+            ['AuthState' => 'someState'],
+        );
+
+        $c = new Controller\NegotiateController($this->config, $this->session);
+
+        $this->expectException(Error\NoState::class);
+        $this->expectExceptionMessage('NOSTATE');
+
+        $c->retry($request);
+    }
+
+
+    /**
+     * Test that a valid requests results in a RunnableResponse
+     * @return void
+    public function testBackend(): void
+    {
+        $request = Request::create(
+            '/backend',
+            'GET',
+            ['AuthState' => 'someState'],
+        );
+
+        $c = new Controller\NegotiateController($this->config, $this->session);
+
+        $response = $c->fallback($request);
+
+        $this->assertInstanceOf(RunnableResponse::class, $response);
+        $this->assertTrue($response->isSuccessful());
+    }
+     */
+
+
+    /**
+     * Test that a missing AuthState results in a BadRequest-error
+     * @return void
+     */
+    public function testBackendMissingState(): void
+    {
+        $request = Request::create(
+            '/backend',
+            'GET',
+        );
+
+        $c = new Controller\NegotiateController($this->config, $this->session);
+
+        $this->expectException(Error\BadRequest::class);
+        $this->expectExceptionMessage('BADREQUEST(\'%REASON%\' => \'Missing required AuthState query parameter.\')');
+
+        $c->fallback($request);
+    }
+
+
+    /**
+     * Test that an invalid AuthState results in a NOSTATE-error
+     * @return void
+     */
+    public function testBackendInvalidState(): void
+    {
+        $request = Request::create(
+            '/backend',
+            'GET',
+            ['AuthState' => 'someState'],
+        );
+
+        $c = new Controller\NegotiateController($this->config, $this->session);
+
+        $this->expectException(Error\NoState::class);
+        $this->expectExceptionMessage('NOSTATE');
+
+        $c->fallback($request);
     }
 }
