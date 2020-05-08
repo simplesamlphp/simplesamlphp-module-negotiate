@@ -111,6 +111,25 @@ class NegotiateTest extends TestCase
      */
 
 
+    /**
+     * Test that a missing AuthState results in a BadRequest-error
+     * @return void
+     */
+    public function testRetryMissingState(): void
+    {
+        $request = Request::create(
+            '/retry',
+            'GET'
+        );
+
+        $c = new Controller\NegotiateController($this->config, $this->session);
+
+        $this->expectException(Error\BadRequest::class);
+        $this->expectExceptionMessage('BADREQUEST(\'%REASON%\' => \'Missing required AuthState query parameter.\')');
+
+        $c->retry($request);
+    }
+
 
     /**
      * Test that an invalid AuthState results in a NOSTATE-error
