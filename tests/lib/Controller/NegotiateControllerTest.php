@@ -102,6 +102,7 @@ class NegotiateTest extends TestCase
         /** @var \SimpleSAML\XHTML\Template $response */
         $response = $c->disable($request);
 
+        // Validate response
         $this->assertInstanceOf(Template::class, $response);
         $this->assertTrue($response->isSuccessful());
 
