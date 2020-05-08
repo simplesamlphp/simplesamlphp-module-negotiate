@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleSAML\Test\Module\negotiate\Controller;
 
+use Exception;
 use PHPUnit\Framework\TestCase;
 use SimpleSAML\Auth\Source;
 use SimpleSAML\Auth\State;
@@ -11,6 +12,7 @@ use SimpleSAML\Configuration;
 use SimpleSAML\Error;
 use SimpleSAML\HTTP\RunnableResponse;
 use SimpleSAML\Logger;
+use SimpleSAML\Module;
 use SimpleSAML\Metadata\MetaDataStorageHandler;
 use SimpleSAML\Module\negotiate\Controller;
 use SimpleSAML\Session;
@@ -54,9 +56,17 @@ class NegotiateTest extends TestCase
 
         Configuration::setPreLoadedConfig($this->config, 'config.php');
 
-        $this->logger = new class() extends Logger {
-            public static function debug(string $string): void
-            { // do nothing
+        $this->logger = new class () extends Logger {
+            public static function debug(string $str): void
+            {
+                // do nothing
+            }
+        };
+
+        $this->module = new class () extends Module {
+            public static function debug(string $str): string
+            {
+                return $str;
             }
         };
     }
@@ -74,6 +84,7 @@ class NegotiateTest extends TestCase
         );
 
         $c = new Controller\NegotiateController($this->config, $this->session);
+        $c->setModule($this->module);
 
         /** @var \SimpleSAML\XHTML\Template $response */
         $response = $c->enable($request);
@@ -112,6 +123,7 @@ class NegotiateTest extends TestCase
         );
 
         $c = new Controller\NegotiateController($this->config, $this->session);
+        $c->setModule($this->module);
 
         /** @var \SimpleSAML\XHTML\Template $response */
         $response = $c->disable($request);
@@ -128,7 +140,7 @@ class NegotiateTest extends TestCase
             }
         }
 
-        $this->assertEquals($cookie->getValue(), true);
+        $this->assertEquals($cookie->getValue(), 'true');
         $this->assertEquals($cookie->getDomain(), null);
         $this->assertEquals($cookie->getPath(), '/');
         $this->assertEquals($expiration = $cookie->getExpiresTime(), mktime(0, 0, 0, 1, 1, 2038));
@@ -153,7 +165,7 @@ class NegotiateTest extends TestCase
 
         $c = new Controller\NegotiateController($this->config, $this->session);
         $c->setLogger($this->logger);
-        $c->setAuthState(new class() extends State {
+        $c->setAuthState(new class () extends State {
             public static function loadState(string $id, string $stage, bool $allowMissing = false): ?array
             {
                 return [
@@ -163,19 +175,23 @@ class NegotiateTest extends TestCase
                 ];
             }
         });
+
         $mdh = $this->createMock(MetaDataStorageHandler::class);
         $mdh->method('getMetaDataCurrentEntityID')->willReturn('entityID');
         $mdh->method('getMetaData')->willReturn([
             'auth' => 'auth_source_id',
         ]);
+
         $c->setMetadataStorageHandler($mdh);
-        $c->setAuthSource(new class() extends Source {
+        $c->setAuthSource(new class () extends Source {
             public function __construct()
-            { // stub
+            {
+                // stub
             }
 
             public function authenticate(array &$state): void
-            { // stub
+            {
+                // stub
             }
 
             public static function getById(string $authId, ?string $type = null): ?Source
@@ -183,6 +199,7 @@ class NegotiateTest extends TestCase
                 return new static();
             }
         });
+
         $response = $c->retry($request);
 
         $this->assertInstanceOf(RunnableResponse::class, $response);
@@ -191,9 +208,105 @@ class NegotiateTest extends TestCase
 
 
     /**
+     * Test that invalid metadata throws an Exception
+     * @return void
+     */
+    public function testRetryInvalidMetadataThrowsException(): void
+    {
+        $request = Request::create(
+            '/retry',
+            'GET',
+            ['AuthState' => 'someState']
+        );
+
+        $c = new Controller\NegotiateController($this->config, $this->session);
+        $c->setLogger($this->logger);
+        $c->setAuthState(new class () extends State {
+            public static function loadState(string $id, string $stage, bool $allowMissing = false): ?array
+            {
+                return [
+                    'LogoutState' => [
+                        'negotiate:backend' => 'foo'
+                    ]
+                ];
+            }
+        });
+
+        $mdh = $this->createMock(MetaDataStorageHandler::class);
+        $mdh->method('getMetaDataCurrentEntityID')->willReturn('entityID');
+        $mdh->method('getMetaData')->willReturn([
+            'noauth' => 'auth_source_id',
+        ]);
+        $c->setMetadataStorageHandler($mdh);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Negotiate - retry - no "auth" parameter found in IdP metadata.');
+
+        $c->retry($request);
+    }
+
+
+    /**
+     * Test that an invalid authsource throws an Exception
+     * @return void
+     */
+    public function testRetryInvalidAuthSourceThrowsException(): void
+    {
+        $request = Request::create(
+            '/retry',
+            'GET',
+            ['AuthState' => 'someState']
+        );
+
+        $c = new Controller\NegotiateController($this->config, $this->session);
+        $c->setLogger($this->logger);
+        $c->setAuthState(new class () extends State {
+            public static function loadState(string $id, string $stage, bool $allowMissing = false): ?array
+            {
+                return [
+                    'LogoutState' => [
+                        'negotiate:backend' => 'foo'
+                    ]
+                ];
+            }
+        });
+
+        $mdh = $this->createMock(MetaDataStorageHandler::class);
+        $mdh->method('getMetaDataCurrentEntityID')->willReturn('entityID');
+        $mdh->method('getMetaData')->willReturn([
+            'auth' => 'auth_source_id',
+        ]);
+        $c->setMetadataStorageHandler($mdh);
+
+        $as = new class () extends Source {
+            public function __construct()
+            {
+                // stub
+            }
+
+            public function authenticate(array &$state): void
+            {
+                // stub
+            }
+
+            public static function getById(string $authId, string $type = null): ?Source
+            {
+                return null;
+            }
+        };
+        $c->setAuthSource($as);
+
+        $this->expectException(Error\BadRequest::class);
+        $this->expectExceptionMessage('Invalid AuthId "auth_source_id" - not found.');
+
+        $c->retry($request);
+    }
+
+
+    /**
      * Test that a missing AuthState results in a BadRequest-error
      * @return void
-     * @throws Error\BadRequest
+     * @throws \SimpleSAML\Error\BadRequest
      */
     public function testRetryMissingState(): void
     {
@@ -228,7 +341,7 @@ class NegotiateTest extends TestCase
 
         $c = new Controller\NegotiateController($this->config, $this->session);
         $c->setLogger($this->logger);
-        $c->setAuthState(new class() extends State {
+        $c->setAuthState(new class () extends State {
             public static function loadState(string $id, string $stage, bool $allowMissing = false): ?array
             {
                 return [

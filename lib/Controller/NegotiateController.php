@@ -25,22 +25,22 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class NegotiateController
 {
-    /** @var \SimpleSAML\Auth\Source|string */
+    /** @var \SimpleSAML\Auth\Source|class-string */
     protected $authSource = Auth\Source::class;
 
-    /** @var \SimpleSAML\Auth\State|string */
+    /** @var \SimpleSAML\Auth\State|class-string */
     protected $authState = Auth\State::class;
 
     /** @var \SimpleSAML\Configuration */
     protected $config;
 
-    /** @var \SimpleSAML\Logger|string */
+    /** @var \SimpleSAML\Logger|class-string */
     protected $logger = Logger::class;
 
     /** @var \SimpleSAML\Metadata\MetaDataStorageHandler|null */
     protected $metadataHandler = null;
 
-    /** @var \SimpleSAML\Module|string */
+    /** @var \SimpleSAML\Module|class-string */
     protected $module = Module::class;
 
     /** @var \SimpleSAML\Session */
@@ -172,7 +172,7 @@ class NegotiateController
 
         $cookie = new Cookie(
             'NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT',
-            true, // value
+            'true', // value
             mktime(0, 0, 0, 1, 1, 2038), // expire
             '/', // path
             '', // domain
