@@ -64,8 +64,25 @@ class NegotiateTest extends TestCase
         /** @var \SimpleSAML\XHTML\Template $response */
         $response = $c->enable($request);
 
+        // Validate response
         $this->assertInstanceOf(Template::class, $response);
         $this->assertTrue($response->isSuccessful());
+
+        // Validate cookie
+        $cookies = $response->headers->getCookies();
+        foreach ($cookies as $cookie) {
+            if ($cookie->getName() === 'NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT') {
+                break;
+            }
+        }
+
+        $this->assertEquals($cookie->getValue(), null);
+        $this->assertEquals($cookie->getDomain(), null);
+        $this->assertEquals($cookie->getPath(), '/');
+        $this->assertEquals($expiration = $cookie->getExpiresTime(), mktime(0, 0, 0, 1, 1, 2038));
+        $this->assertEquals($cookie->getMaxAge(), $expiration - time());
+        $this->assertTrue($cookie->isSecure());
+        $this->assertTrue($cookie->isHttpOnly());
     }
 
 
@@ -87,6 +104,22 @@ class NegotiateTest extends TestCase
 
         $this->assertInstanceOf(Template::class, $response);
         $this->assertTrue($response->isSuccessful());
+
+        // Validate cookie
+        $cookies = $response->headers->getCookies();
+        foreach ($cookies as $cookie) {
+            if ($cookie->getName() === 'NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT') {
+                break;
+            }
+        }
+
+        $this->assertEquals($cookie->getValue(), true);
+        $this->assertEquals($cookie->getDomain(), null);
+        $this->assertEquals($cookie->getPath(), '/');
+        $this->assertEquals($expiration = $cookie->getExpiresTime(), mktime(0, 0, 0, 1, 1, 2038));
+        $this->assertEquals($cookie->getMaxAge(), $expiration - time());
+        $this->assertTrue($cookie->isSecure());
+        $this->assertTrue($cookie->isHttpOnly());
     }
 
 
