@@ -32,6 +32,9 @@ class NegotiateTest extends TestCase
     /** @var \SimpleSAML\Logger */
     protected $logger;
 
+    /** @var \SimpleSAML\Module */
+    protected $module;
+
     /** @var \SimpleSAML\Session */
     protected $session;
 
