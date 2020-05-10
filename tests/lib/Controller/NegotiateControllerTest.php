@@ -44,7 +44,7 @@ class NegotiateTest extends TestCase
      * Set up for each test.
      * @return void
      */
-    protected function setUp(): void
+    protected function setUp()
     {
         parent::setUp();
 
