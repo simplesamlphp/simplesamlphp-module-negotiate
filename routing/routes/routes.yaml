@@ -11,5 +11,5 @@ negotiate-retry:
     defaults:   { _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::retry' }
 
 negotiate-fallback:
-    path:       /fallback
+    path:       /backend
     defaults:   { _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::fallback' }
