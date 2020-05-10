@@ -247,17 +247,17 @@ class NegotiateController
 
         $this->logger::debug('backend - fallback: ' . $state['LogoutState']['negotiate:backend']);
 
-        return new class([Negotiate::class, 'fallBack'], [&$state]) extends StreamedResponse {
-            protected $args;
+        return new class([Negotiate::class, 'fallBack'], $state) extends StreamedResponse {
+            protected $state;
 
-            public function __construct(callable $callback, $args) {
+            public function __construct(callable $callback, &$state) {
                 parent::__construct($callback);
-                $this->args = $args;
+                $this->state = $state;
             }
 
             public function sendContent(): self
             {
-                call_user_func_array($this->callback, $this->args);
+                call_user_func_array($this->callback, [&$this->state]);
                 return $this;
             }
         };
