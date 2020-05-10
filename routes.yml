@@ -1,0 +1,31 @@
+negotiate-enable:
+    path:       /enable
+    defaults:   { _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::enable' }
+
+negotiate-disable:
+    path:       /disable
+    defaults:   { _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::disable' }
+
+negotiate-retry:
+    path:       /retry
+    defaults:   { _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::retry' }
+
+negotiate-fallback:
+    path:       /backend
+    defaults:   { _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::fallback' }
+
+negotiate-enable-legacy:
+    path:       /enable.php
+    defaults:   { _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::enable' }
+
+negotiate-disable-legacy:
+    path:       /disable.php
+    defaults:   { _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::disable' }
+
+negotiate-retry-legacy:
+    path:       /retry.php
+    defaults:   { _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::retry' }
+
+negotiate-fallback-legacy:
+    path:       /backend.php
+    defaults:   { _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::fallback' }
