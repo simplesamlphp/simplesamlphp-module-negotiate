@@ -28,22 +28,34 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class NegotiateController
 {
-    /** @var \SimpleSAML\Auth\Source|class-string */
+    /**
+     * @var \SimpleSAML\Auth\Source|string
+     * @psalm-var \SimpleSAML\Auth\Source|class-string
+     */
     protected $authSource = Auth\Source::class;
 
-    /** @var \SimpleSAML\Auth\State|class-string */
+    /**
+     * @var \SimpleSAML\Auth\State|string
+     * @psalm-var \SimpleSAML\Auth\State|class-string
+     */
     protected $authState = Auth\State::class;
 
     /** @var \SimpleSAML\Configuration */
     protected $config;
 
-    /** @var \SimpleSAML\Logger|class-string */
+    /**
+     * @var \SimpleSAML\Logger|string
+     * @psalm-var \SimpleSAML\Logger|class-string
+     */
     protected $logger = Logger::class;
 
     /** @var \SimpleSAML\Metadata\MetaDataStorageHandler|null */
     protected $metadataHandler = null;
 
-    /** @var \SimpleSAML\Module|class-string */
+    /**
+     * @var \SimpleSAML\Module|string
+     * @psalm-var \SimpleSAML\Module|class-string
+     */
     protected $module = Module::class;
 
     /** @var \SimpleSAML\Session */
