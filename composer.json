@@ -3,7 +3,7 @@
     "description": "The Negotiate module implements Microsofts Kerberos SPNEGO mechanism",
     "type": "simplesamlphp-module",
     "keywords": ["simplesamlphp", "negotiate"],
-    "license": "LGPL-3.0-or-later",
+    "license": "LGPL-2.1",
     "authors": [
         {
             "name": "Olav Morken",
