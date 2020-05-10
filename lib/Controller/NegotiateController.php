@@ -247,7 +247,8 @@ class NegotiateController
 
         $this->logger::debug('backend - fallback: ' . $state['LogoutState']['negotiate:backend']);
 
-        return new class([Negotiate::class, 'fallBack'], $state) extends StreamedResponse {
+        return new class ([Negotiate::class, 'fallBack'], $state) extends StreamedResponse
+        {
             protected $state;
 
             public function __construct(callable $callback, &$state) {
