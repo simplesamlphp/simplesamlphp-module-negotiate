@@ -18,6 +18,7 @@ use SimpleSAML\Module\negotiate\Controller;
 use SimpleSAML\Session;
 use SimpleSAML\XHTML\Template;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Set of tests for the controllers in the "negotiate" module.
@@ -357,7 +358,7 @@ class NegotiateTest extends TestCase
 
         $response = $c->fallback($request);
 
-        $this->assertInstanceOf(RunnableResponse::class, $response);
+        $this->assertInstanceOf(StreamedResponse::class, $response);
         $this->assertTrue($response->isSuccessful());
     }
 
