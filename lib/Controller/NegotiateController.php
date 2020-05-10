@@ -251,12 +251,13 @@ class NegotiateController
         {
             protected $state;
 
-            public function __construct(callable $callback, &$state) {
+            public function __construct(callable $callback, &$state)
+            {
                 parent::__construct($callback);
                 $this->state = $state;
             }
 
-            public function sendContent(): self
+            public function sendContent()
             {
                 call_user_func_array($this->callback, [&$this->state]);
                 return $this;
