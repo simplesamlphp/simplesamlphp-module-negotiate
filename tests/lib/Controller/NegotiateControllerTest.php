@@ -94,10 +94,10 @@ class NegotiateTest extends TestCase
         $response = $c->enable($request);
 
         // Validate response
-        $this->assertInstanceOf(Template::class, $response);
         $this->assertTrue($response->isSuccessful());
 
         // Validate cookie
+        /** @var non-empty-array $cookies */
         $cookies = $response->headers->getCookies();
         foreach ($cookies as $cookie) {
             if ($cookie->getName() === 'NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT') {
@@ -133,10 +133,10 @@ class NegotiateTest extends TestCase
         $response = $c->disable($request);
 
         // Validate response
-        $this->assertInstanceOf(Template::class, $response);
         $this->assertTrue($response->isSuccessful());
 
         // Validate cookie
+        /** @var non-empty-array $cookies */
         $cookies = $response->headers->getCookies();
         foreach ($cookies as $cookie) {
             if ($cookie->getName() === 'NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT') {
@@ -206,7 +206,6 @@ class NegotiateTest extends TestCase
 
         $response = $c->retry($request);
 
-        $this->assertInstanceOf(RunnableResponse::class, $response);
         $this->assertTrue($response->isSuccessful());
     }
 
@@ -358,7 +357,6 @@ class NegotiateTest extends TestCase
 
         $response = $c->fallback($request);
 
-        $this->assertInstanceOf(StreamedResponse::class, $response);
         $this->assertTrue($response->isSuccessful());
     }
 

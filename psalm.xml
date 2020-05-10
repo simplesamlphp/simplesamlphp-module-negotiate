@@ -27,6 +27,20 @@
         <MissingParamType errorLevel="info" />
         <UnusedClass errorLevel="info" />
         <PossiblyUnusedMethod errorLevel="info" />
+
+        <!-- Ignore UnresolvableInclude on CLI-scripts -->
+        <UnresolvableInclude>
+            <errorLevel type="suppress">
+                <file name="tests/bootstrap.php" />
+            </errorLevel>
+        </UnresolvableInclude>
+
+        <!-- Ignore InternalMethod on tests -->
+        <InternalMethod>
+            <errorLevel type="suppress">
+                <directory name="tests" />
+            </errorLevel>
+        </InternalMethod>
     </issueHandlers>
 
     <stubs>

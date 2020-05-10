@@ -138,10 +138,11 @@ class NegotiateController
     /**
      * Show enable.
      *
+     * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \SimpleSAML\XHTML\Template
      * @throws Exception
      */
-    public function enable(): Template
+    public function enable(Request $request): Template
     {
         $this->session->setData('negotiate:disable', 'session', false, 86400); // 24*60*60=86400
 
@@ -166,10 +167,11 @@ class NegotiateController
     /**
      * Show disable.
      *
+     * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \SimpleSAML\XHTML\Template
      * @throws Exception
      */
-    public function disable(): Template
+    public function disable(Request $request): Template
     {
         $this->session->setData('negotiate:disable', 'session', false, 86400); //24*60*60=86400
 
@@ -251,6 +253,7 @@ class NegotiateController
 
         return new class ([Negotiate::class, 'fallBack'], $state) extends StreamedResponse
         {
+            /** @var array $state */
             protected $state;
 
             public function __construct(callable $callback, &$state)
