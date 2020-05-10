@@ -15,6 +15,7 @@ use SimpleSAML\Session;
 use SimpleSAML\XHTML\Template;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Controller class for the negotiate module.
@@ -234,7 +235,7 @@ class NegotiateController
      * @throws \SimpleSAML\Error\BadRequest
      * @throws \SimpleSAML\Error\NoState
      */
-    public function fallback(Request $request): RunnableResponse
+    public function fallback(Request $request): StreamedResponse
     {
         $authState = $request->get('AuthState', null);
         if ($authState === null) {
@@ -246,6 +247,19 @@ class NegotiateController
 
         $this->logger::debug('backend - fallback: ' . $state['LogoutState']['negotiate:backend']);
 
-        return new RunnableResponse([Negotiate::class, 'fallback'], [$state]);
+        return new class([Negotiate::class, 'fallBack'], [&$state]) extends StreamedResponse {
+            protected $args;
+
+            public function __construct(callable $callback, $args) {
+                parent::__construct($callback);
+                $this->args = $args;
+            }
+
+            public function sendContent(): self
+            {
+                call_user_func_array($this->callback, $this->args);
+                return $this;
+            }
+        };
     }
 }
