@@ -231,7 +231,7 @@ class NegotiateController
      *
      * @param Request $request The request that lead to this retry operation.
      *
-     * @return \SimpleSAML\HTTP\RunnableResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse
      * @throws \SimpleSAML\Error\BadRequest
      * @throws \SimpleSAML\Error\NoState
      */
