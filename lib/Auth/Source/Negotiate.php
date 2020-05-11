@@ -174,7 +174,19 @@ class Negotiate extends \SimpleSAML\Auth\Source
             }
 
             Assert::true(is_string($this->spn) || (is_int($this->spn) && ($this->spn === 0)) || is_null($this->spn));
-            $auth = new \KRB5NegotiateAuth($this->keytab, $this->spn);
+
+            if (version_compare(phpversion('krb5'), '1.1.3', '<')) {
+                $auth = new \KRB5NegotiateAuth($this->keytab);
+            } elseif (version_compare(phpversion('krb5'), '1.1.3', 'eq') && is_null($this->spn)) {
+                /**
+                 * This is a workaround for a bug in krb5 v1.1.3 that has been fixed in SVN, just not yet released.
+                 * Once v1.1.4 is released, get rid of the elseif-clause and then make sure to mark the 
+                 * v.1.1.3 version of the extension as a conflict in the composer.json file.
+                 */
+                $auth = new \KRB5NegotiateAuth($this->keytab);
+            } else {
+                $auth = new \KRB5NegotiateAuth($this->keytab, $this->spn);
+            }
 
             // attempt Kerberos authentication
             try {
