@@ -139,7 +139,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
         if (
             $disabled
             || (!empty($_COOKIE['NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT'])
-                && $_COOKIE['NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT'] == 'True')
+                && $_COOKIE['NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT'] === 'true')
         ) {
             Logger::debug('Negotiate - session disabled. falling back');
             $this->fallBack($state);
