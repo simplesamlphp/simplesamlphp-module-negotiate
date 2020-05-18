@@ -72,14 +72,6 @@ class NegotiateTest extends TestCase
         };
 
         $this->module = new class () extends Module {
-            /**
-             * @param string $str
-             * @return string
-             */
-            public static function debug($str)
-            {
-                return $str;
-            }
         };
     }
 
