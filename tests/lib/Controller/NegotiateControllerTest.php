@@ -68,10 +68,6 @@ class NegotiateTest extends TestCase
         };
 
         $this->module = new class () extends Module {
-            public static function debug(string $str): string
-            {
-                return $str;
-            }
         };
     }
 
