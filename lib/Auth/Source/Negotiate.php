@@ -184,7 +184,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
             } elseif (version_compare(phpversion('krb5'), '1.1.3', 'eq') && is_null($this->spn)) {
                 /**
                  * This is a workaround for a bug in krb5 v1.1.3 that has been fixed in SVN, just not yet released.
-                 * Once v1.1.4 is released, get rid of the elseif-clause and then make sure to mark the 
+                 * Once v1.1.4 is released, get rid of the elseif-clause and then make sure to mark the
                  * v.1.1.3 version of the extension as a conflict in the composer.json file.
                  */
                 $auth = new \KRB5NegotiateAuth($this->keytab);
