@@ -294,7 +294,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
     {
         $config = \SimpleSAML\Configuration::getInstance();
 
-        $url = htmlspecialchars(\SimpleSAML\Module::getModuleURL('negotiate/backend', $params));
+        $url = htmlspecialchars(\SimpleSAML\Module::getModuleURL('negotiate/backend.php', $params));
 
         $t = new \SimpleSAML\XHTML\Template($config, 'negotiate:redirect.php');
         $t->setStatusCode(401);
