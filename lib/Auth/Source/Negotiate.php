@@ -10,7 +10,6 @@ use Webmozart\Assert\Assert;
 /**
  * The Negotiate module. Allows for password-less, secure login by Kerberos and Negotiate.
  *
- * @author Mathias Meisfjordskar, University of Oslo <mathias.meisfjordskar@usit.uio.no>
  * @package SimpleSAMLphp
  */
 class Negotiate extends \SimpleSAML\Auth\Source
