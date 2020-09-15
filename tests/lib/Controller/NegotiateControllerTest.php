@@ -42,7 +42,6 @@ class NegotiateTest extends TestCase
 
     /**
      * Set up for each test.
-     * @return void
      */
     protected function setUp(): void
     {
@@ -74,7 +73,6 @@ class NegotiateTest extends TestCase
 
     /**
      * Test that a valid requests results in a Twig template
-     * @return void
      */
     public function testEnable(): void
     {
@@ -113,7 +111,6 @@ class NegotiateTest extends TestCase
 
     /**
      * Test that a valid requests results in a Twig template
-     * @return void
      */
     public function testDisable(): void
     {
@@ -152,7 +149,6 @@ class NegotiateTest extends TestCase
 
     /**
      * Test that a valid requests results in a RunnableResponse
-     * @return void
      * @throws \SimpleSAML\Error\BadRequest
      */
     public function testRetry(): void
@@ -208,7 +204,6 @@ class NegotiateTest extends TestCase
 
     /**
      * Test that invalid metadata throws an Exception
-     * @return void
      */
     public function testRetryInvalidMetadataThrowsException(): void
     {
@@ -247,7 +242,6 @@ class NegotiateTest extends TestCase
 
     /**
      * Test that an invalid authsource throws an Exception
-     * @return void
      */
     public function testRetryInvalidAuthSourceThrowsException(): void
     {
@@ -304,7 +298,6 @@ class NegotiateTest extends TestCase
 
     /**
      * Test that a missing AuthState results in a BadRequest-error
-     * @return void
      * @throws \SimpleSAML\Error\BadRequest
      */
     public function testRetryMissingState(): void
@@ -326,7 +319,6 @@ class NegotiateTest extends TestCase
 
     /**
      * Test that a valid requests results in a RunnableResponse
-     * @return void
      * @throws Error\BadRequest
      * @throws Error\NoState
      */
@@ -359,7 +351,6 @@ class NegotiateTest extends TestCase
 
     /**
      * Test that a missing AuthState results in a BadRequest-error
-     * @return void
      * @throws Error\BadRequest
      * @throws Error\NoState
      */

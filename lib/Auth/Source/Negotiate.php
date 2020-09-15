@@ -118,7 +118,6 @@ class Negotiate extends \SimpleSAML\Auth\Source
      * LDAP is used as a user metadata source.
      *
      * @param array &$state Information about the current authentication.
-     * @return void
      */
     public function authenticate(array &$state): void
     {
@@ -290,7 +289,6 @@ class Negotiate extends \SimpleSAML\Auth\Source
      * wants to show the 401 message.
      *
      * @param array $params additional parameters to the URL in the URL in the body.
-     * @return void
      */
     protected function sendNegotiate(array $params): void
     {
@@ -311,7 +309,6 @@ class Negotiate extends \SimpleSAML\Auth\Source
      * Passes control of the login process to a different module.
      *
      * @param array $state Information about the current authentication.
-     * @return void
      *
      * @throws \SimpleSAML\Error\Error If couldn't determine the auth source.
      * @throws \SimpleSAML\Error\Exception
@@ -378,7 +375,6 @@ class Negotiate extends \SimpleSAML\Auth\Source
      * Elevates the LDAP connection to allow restricted lookups if
      * so configured. Does nothing if not.
      *
-     * @return void
      * @throws \SimpleSAML\Error\AuthSource
      */
     protected function adminBind(): void
@@ -405,7 +401,6 @@ class Negotiate extends \SimpleSAML\Auth\Source
      * logout call to the fallback module.
      *
      * @param array &$state Information about the current logout operation.
-     * @return void
      */
     public function logout(array &$state): void
     {
