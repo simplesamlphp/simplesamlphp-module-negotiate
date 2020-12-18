@@ -55,17 +55,13 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader --ignore-platform-req ext-krb5
 
-      - name: Install test framework
-        run: composer require simplesamlphp/simplesamlphp-test-framework --dev --ignore-platform-req ext-krb5
-
       - name: Syntax check PHP
         run: bash vendor/bin/check-syntax-php.sh
 
       - name: Decide whether to run code coverage or not
-        uses: allenevans/set-env@v1.0.0
         if: ${{ matrix.php-versions != '7.4' || matrix.operating-system != 'ubuntu-latest' }}
-        with:
-          NO_COVERAGE: "--no-coverage"
+        run:
+          echo "NO_COVERAGE=--no-coverage" >> $GITHUB_ENV
 
       - name: Run unit tests
         run: |
@@ -151,9 +147,6 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader --ignore-platform-req ext-krb5
 
-      - name: Install test framework
-        run: composer require simplesamlphp/simplesamlphp-test-framework --dev --ignore-platform-req ext-krb5
-
       - name: Syntax check YAML / XML / JSON
         run: |
           bash vendor/bin/check-syntax-yaml.sh
@@ -202,11 +195,11 @@ jobs:
 
       - name: PHP Code Sniffer
         continue-on-error: true
-        run: php vendor/bin/phpcs src/
+        run: php vendor/bin/phpcs
 
       - name: Psalm
         continue-on-error: true
-        uses: docker://vimeo/psalm-github-actions
+        run: php vendor/bin/psalm --show-info=true
 
       - name: Psalter
         continue-on-error: true
