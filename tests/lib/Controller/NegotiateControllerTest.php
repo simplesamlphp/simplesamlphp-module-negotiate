@@ -84,7 +84,6 @@ class NegotiateTest extends TestCase
         $c = new Controller\NegotiateController($this->config, $this->session);
         $c->setModule($this->module);
 
-        /** @var \SimpleSAML\XHTML\Template $response */
         $response = $c->enable($request);
 
         // Validate response
@@ -122,7 +121,6 @@ class NegotiateTest extends TestCase
         $c = new Controller\NegotiateController($this->config, $this->session);
         $c->setModule($this->module);
 
-        /** @var \SimpleSAML\XHTML\Template $response */
         $response = $c->disable($request);
 
         // Validate response
