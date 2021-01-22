@@ -301,7 +301,7 @@ class Negotiate extends \SimpleSAML\Auth\Source
         $t->headers->set('WWW-Authenticate', 'Negotiate');
         $t->data['baseurlpath'] = \SimpleSAML\Module::getModuleURL('negotiate');
         $t->data['url'] = $url;
-        $t->send();
+        $t->show();
     }
 
 
