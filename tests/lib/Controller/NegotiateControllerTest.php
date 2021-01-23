@@ -28,16 +28,16 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class NegotiateTest extends TestCase
 {
     /** @var \SimpleSAML\Configuration */
-    protected $config;
+    protected Configuration $config;
 
-    /** @var \SimpleSAML\Logger */
+    /** @var Logger \SimpleSAML\Logger */
     protected $logger;
 
     /** @var \SimpleSAML\Module */
-    protected $module;
+    protected Module $module;
 
     /** @var \SimpleSAML\Session */
-    protected $session;
+    protected Session $session;
 
 
     /**

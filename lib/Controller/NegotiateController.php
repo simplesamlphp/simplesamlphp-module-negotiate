@@ -50,7 +50,7 @@ class NegotiateController
     protected $logger = Logger::class;
 
     /** @var \SimpleSAML\Metadata\MetaDataStorageHandler|null */
-    protected $metadataHandler = null;
+    protected ?MetaDataStorageHandler $metadataHandler = null;
 
     /**
      * @var \SimpleSAML\Module|string
@@ -59,7 +59,7 @@ class NegotiateController
     protected $module = Module::class;
 
     /** @var \SimpleSAML\Session */
-    protected $session;
+    protected Session $session;
 
 
     /**
