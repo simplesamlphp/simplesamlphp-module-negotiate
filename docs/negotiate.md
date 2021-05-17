@@ -79,7 +79,7 @@ by php_krb5.
 
 NOTE! If running using virtual hosts or behind a reverse proxy, you
 might need to change the 'spn' variable to 0 (match any entry in the
-keytab file) or set it to the specific entry to are trying to match.
+keytab file) or set it to the specific entry you are trying to match.
 This requires php-krb5 >= 1.1.3:
 
     'spn' => 'HTTP/host',
