@@ -60,7 +60,7 @@ class NegotiateTest extends TestCase
         Configuration::setPreLoadedConfig($this->config, 'config.php');
 
         $this->logger = new class () extends Logger {
-            public static function debug(string $str): void
+            public static function debug(string $string): void
             {
                 // do nothing
             }
