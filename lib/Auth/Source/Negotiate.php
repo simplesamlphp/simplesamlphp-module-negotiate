@@ -7,6 +7,7 @@ namespace SimpleSAML\Module\negotiate\Auth\Source;
 use SimpleSAML\Assert\Assert;
 use SimpleSAML\Logger;
 use SimpleSAML\Module\ldap\Auth\Ldap;
+use SimpleSAML\Utils;
 
 /**
  * The Negotiate module. Allows for password-less, secure login by Kerberos and Negotiate.
@@ -97,7 +98,8 @@ class Negotiate extends \SimpleSAML\Auth\Source
         $this->enableTLS = $cfg->getBoolean('enable_tls', false);
         $this->debugLDAP = $cfg->getBoolean('debugLDAP', false);
         $this->timeout = $cfg->getInteger('timeout', 30);
-        $this->keytab = \SimpleSAML\Utils\Config::getCertPath($cfg->getString('keytab'));
+        $configUtils = new Utils\Config();
+        $this->keytab = $configUtils->getCertPath($cfg->getString('keytab'));
         $this->base = $cfg->getArrayizeString('base');
         $this->attr = $cfg->getArrayizeString('attr', 'uid');
         $this->subnet = $cfg->getArray('subnet', null);
@@ -273,8 +275,9 @@ class Negotiate extends \SimpleSAML\Auth\Source
             return true;
         }
         $ip = $_SERVER['REMOTE_ADDR'];
+        $netUtils = new Utils\Net();
         foreach ($this->subnet as $cidr) {
-            $ret = \SimpleSAML\Utils\Net::ipCIDRcheck($cidr);
+            $ret = $netUtils->ipCIDRcheck($cidr);
             if ($ret) {
                 Logger::debug('Negotiate: Client "' . $ip . '" matched subnet.');
                 return true;
