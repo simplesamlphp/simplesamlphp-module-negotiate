@@ -215,7 +215,7 @@ class NegotiateController
      */
     public function retry(Request $request): RunnableResponse
     {
-        $authState = $request->get('AuthState', null);
+        $authState = $request->query->get('AuthState', null);
         if ($authState === null) {
             throw new Error\BadRequest('Missing required AuthState query parameter.');
         }
@@ -253,7 +253,7 @@ class NegotiateController
      */
     public function fallback(Request $request): StreamedResponse
     {
-        $authState = $request->get('AuthState', null);
+        $authState = $request->query->get('AuthState', null);
         if ($authState === null) {
             throw new Error\BadRequest('Missing required AuthState query parameter.');
         }
