@@ -178,7 +178,7 @@ class Negotiate extends Auth\Source
             );
 
             list($mech,) = explode(' ', $_SERVER['HTTP_AUTHORIZATION'], 2);
-            if (strtolower($mech) == 'basic') {
+            if (strtolower($mech) === 'basic') {
                 Logger::debug('Negotiate - authenticate(): Basic found. Skipping.');
             } elseif (strtolower($mech) !== 'negotiate') {
                 Logger::debug('Negotiate - authenticate(): No "Negotiate" found. Skipping.');
