@@ -32,7 +32,7 @@
     },
     "require": {
         "php": ">=7.4 || ^8.0",
-        "ext-krb5": "*",
+        "ext-krb5": ">=1.1.4",
 
         "simplesamlphp/composer-module-installer": "~1.1",
         "simplesamlphp/simplesamlphp": "^2.0.0-beta.2",

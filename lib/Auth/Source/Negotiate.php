@@ -180,26 +180,12 @@ class Negotiate extends Auth\Source
             list($mech,) = explode(' ', $_SERVER['HTTP_AUTHORIZATION'], 2);
             if (strtolower($mech) == 'basic') {
                 Logger::debug('Negotiate - authenticate(): Basic found. Skipping.');
-            } else {
-                if (strtolower($mech) != 'negotiate') {
-                    Logger::debug('Negotiate - authenticate(): No "Negotiate" found. Skipping.');
-                }
+            } elseif (strtolower($mech) !== 'negotiate') {
+                Logger::debug('Negotiate - authenticate(): No "Negotiate" found. Skipping.');
             }
 
             Assert::true(is_string($this->spn) || (is_int($this->spn) && ($this->spn === 0)) || is_null($this->spn));
-
-            if (version_compare(phpversion('krb5'), '1.1.3', '<')) {
-                $auth = new KRB5NegotiateAuth($this->keytab);
-            } elseif (version_compare(phpversion('krb5'), '1.1.3', 'eq') && is_null($this->spn)) {
-                /**
-                 * This is a workaround for a bug in krb5 v1.1.3 that has been fixed in SVN, just not yet released.
-                 * Once v1.1.4 is released, get rid of the elseif-clause and then make sure to mark the
-                 * v.1.1.3 version of the extension as a conflict in the composer.json file.
-                 */
-                $auth = new KRB5NegotiateAuth($this->keytab);
-            } else {
-                $auth = new KRB5NegotiateAuth($this->keytab, $this->spn);
-            }
+            $auth = new KRB5NegotiateAuth($this->keytab, $this->spn);
 
             // attempt Kerberos authentication
             try {
