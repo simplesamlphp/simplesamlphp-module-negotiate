@@ -101,21 +101,21 @@ class Negotiate extends Auth\Source
 
         $this->backend = $cfg->getString('fallback');
         $this->hostname = $cfg->getString('hostname');
-        $this->port = $cfg->getInteger('port', 389);
-        $this->referrals = $cfg->getBoolean('referrals', true);
-        $this->enableTLS = $cfg->getBoolean('enable_tls', false);
-        $this->debugLDAP = $cfg->getBoolean('debugLDAP', false);
-        $this->timeout = $cfg->getInteger('timeout', 30);
+        $this->port = $cfg->getOptionalInteger('port', 389);
+        $this->referrals = $cfg->getOptionalBoolean('referrals', true);
+        $this->enableTLS = $cfg->getOptionalBoolean('enable_tls', false);
+        $this->debugLDAP = $cfg->getOptionalBoolean('debugLDAP', false);
+        $this->timeout = $cfg->getOptionalInteger('timeout', 30);
         $configUtils = new Utils\Config();
         $this->keytab = $configUtils->getCertPath($cfg->getString('keytab'));
         $this->base = $cfg->getArrayizeString('base');
-        $this->attr = $cfg->getArrayizeString('attr', 'uid');
-        $this->subnet = $cfg->getArray('subnet', null);
-        $this->admin_user = $cfg->getString('adminUser', null);
-        $this->admin_pw = $cfg->getString('adminPassword', null);
-        $this->attributes = $cfg->getArray('attributes', null);
-        $this->binaryAttributes = $cfg->getArray('attributes.binary', []);
-        $this->spn = $cfg->getValue('spn', null);
+        $this->attr = $cfg->getOptionalArrayizeString('attr', 'uid');
+        $this->subnet = $cfg->getOptionalArray('subnet', null);
+        $this->admin_user = $cfg->getOptionalString('adminUser', null);
+        $this->admin_pw = $cfg->getOptionalString('adminPassword', null);
+        $this->attributes = $cfg->getOptionalArray('attributes', null);
+        $this->binaryAttributes = $cfg->getOptionalArray('attributes.binary', []);
+        $this->spn = $cfg->getOptionalValue('spn', null);
     }
 
 
