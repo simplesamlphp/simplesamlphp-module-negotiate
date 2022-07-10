@@ -45,7 +45,7 @@ Kerberos for clients that always will fail. Worst case scenario the
 browser will prompt the user for u/p in a popup box that will always
 fail. Only when the user clicks cancel the proper login process will
 continue. This is handled through the body of the 401 message the
-client recieves with the Negotiate request. In the body a URL to the
+client receives with the Negotiate request. In the body a URL to the
 fallback mechanism is supplied and Javascript is used to redirect the
 client.
 
@@ -250,7 +250,7 @@ this:
 
     Sep 27 13:47:36 simplesamlphp WARNING [b99e6131ee] Wrong stage in state. Was 'foo', should be '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate.StageId'.
 
-It will work as loadState will take controll and call
+It will work as loadState will take control and call
 Negotiate->authenticate() but remaining code in retry.php will be
 discarded. Other side-effects may occur.
 
