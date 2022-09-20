@@ -31,7 +31,7 @@ class NegotiateTest extends TestCase
     protected Configuration $config;
 
     /** @var Logger \SimpleSAML\Logger */
-    protected $logger;
+    protected \SimpleSAML\Logger $logger;
 
     /** @var \SimpleSAML\Module */
     protected Module $module;
@@ -178,7 +178,7 @@ class NegotiateTest extends TestCase
 
         $c->setMetadataStorageHandler($mdh);
         $c->setAuthSource(new class () extends Source {
-            public function __construct()
+            final public function __construct()
             {
                 // stub
             }

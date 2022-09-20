@@ -220,7 +220,6 @@ class NegotiateController
             throw new Error\BadRequest('Missing required AuthState query parameter.');
         }
 
-        /** @psalm-var array $state */
         $state = $this->authState::loadState($authState, Negotiate::STAGEID);
 
         $mdh = $this->getMetadataStorageHandler();
@@ -258,7 +257,6 @@ class NegotiateController
             throw new Error\BadRequest('Missing required AuthState query parameter.');
         }
 
-        /** @psalm-var array $state */
         $state = $this->authState::loadState($authState, Negotiate::STAGEID);
 
         $this->logger::debug('backend - fallback: ' . $state['LogoutState']['negotiate:backend']);
@@ -266,9 +264,9 @@ class NegotiateController
         return new class ([Negotiate::class, 'fallBack'], $state) extends StreamedResponse
         {
             /** @var array $state */
-            protected $state;
+            protected array $state;
 
-            public function __construct(callable $callback, &$state)
+            public function __construct(callable $callback, array &$state)
             {
                 parent::__construct($callback);
                 $this->state = $state;
