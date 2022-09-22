@@ -109,7 +109,7 @@ class Negotiate extends Auth\Source
         $configUtils = new Utils\Config();
         $this->keytab = $configUtils->getCertPath($cfg->getString('keytab'));
         $this->base = $cfg->getArrayizeString('base');
-        $this->attr = $cfg->getOptionalArrayizeString('attr', 'uid');
+        $this->attr = $cfg->getOptionalArrayizeString('attr', ['uid']);
         $this->subnet = $cfg->getOptionalArray('subnet', null);
         $this->admin_user = $cfg->getOptionalString('adminUser', null);
         $this->admin_pw = $cfg->getOptionalString('adminPassword', null);
