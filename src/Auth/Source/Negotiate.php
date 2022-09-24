@@ -300,7 +300,7 @@ class Negotiate extends Auth\Source
         }
         $uid = substr($user, 0, $pos);
 
-        /** @psalm-var \SimpleSAML\Module\ldap\Auth\Source\Ldap|null $source */
+        /** @var \SimpleSAML\Module\ldap\Auth\Source\Ldap|null $source */
         $source = Auth\Source::getById($this->backend);
         if ($source === null) {
             throw new Exception('Could not find authentication source with id ' . $this->backend);
