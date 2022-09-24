@@ -160,7 +160,7 @@ conditions. This triggers a popup login box which defeats the whole
 purpose of this module.
 
 TBD: Replace or supplement with LDAP lookups in the domain. Machines
-currently in the domain should be the only ones that are promted with
+currently in the domain should be the only ones that are prompted with
 WWW-Authenticate: Negotiate.
 
 ### Enabling/disabling Negotiate from a web browser
