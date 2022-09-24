@@ -53,16 +53,25 @@ All configuration is handled in authsources.php:
 'weblogin' => [
     'negotiate:Negotiate',
     'keytab' => '/path/to/keytab-file',
-    'fallback' => 'ldap',
-    'spn' => null
+    'backend' => 'ldap',
+    'fallback' => 'crypto-hash',
+    'spn' => null,
 ],
 'ldap' => [
     'ldap:LDAP',
     'hostname' => 'ldap.example.com',
     'enable_tls' => true,
     'dnpattern' => 'uid=%username%,cn=people,dc=example,dc=com',
-    'search.enable' => false
+    'search.enable' => false,
 ],
+'crypto-hash' => [
+    'authcrypt:Hash',
+    // hashed version of 'verysecret', made with bin/pwgen.php
+    'professor:{SSHA256}P6FDTEEIY2EnER9a6P2GwHhI5JDrwBgjQ913oVQjBngmCtrNBUMowA==' => [
+        'uid' => ['prof_a'],
+        'eduPersonAffiliation' => ['member', 'employee', 'board'],
+    ],
+]
 ```
 
 ### `php_krb5`

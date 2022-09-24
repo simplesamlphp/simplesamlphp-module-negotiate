@@ -28,14 +28,14 @@ class Negotiate extends Auth\Source
 
     public const AUTHID = '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate.AuthId';
 
-    /** @var \SimpleSAML\Module\ldap\ConnectorInterface */
-    //protected ConnectorInterface $connector;
-
     /** @var string */
     protected string $backend;
 
     /** @var string */
-    protected string $keytab = '';
+    protected string $fallback;
+
+    /** @var string */
+    protected string $keytab;
 
     /** @var string|integer|null */
     protected $spn = null;
@@ -61,7 +61,8 @@ class Negotiate extends Auth\Source
         parent::__construct($info, $config);
 
         $cfg = Configuration::loadFromArray($config);
-        $this->backend = $cfg->getString('fallback');
+        $this->backend = $cfg->getString('backend');
+        $this->fallback = $cfg->getOptionalString('fallback', $this->backend);
         $this->spn = $cfg->getOptionalValue('spn', null);
         $configUtils = new Utils\Config();
         $this->keytab = $configUtils->getCertPath($cfg->getString('keytab'));
@@ -86,6 +87,7 @@ class Negotiate extends Auth\Source
             'negotiate:backend' => $this->backend,
         ];
         $state['negotiate:authId'] = $this->authId;
+        $state['negotiate:fallback'] = $this->fallback;
 
 
         // check for disabled SPs. The disable flag is stored in the SP metadata
@@ -252,10 +254,9 @@ class Negotiate extends Auth\Source
      * @throws \SimpleSAML\Error\Exception
      * @throws \Exception
      */
-    public static function fallBack(array &$state): void
+    public static function fallBack(array &$state): void // never
     {
-        $authId = $state['LogoutState']['negotiate:backend'];
-
+        $authId = $state['negotiate:fallback'];
         if ($authId === null) {
             throw new Error\Error([500, "Unable to determine auth source."]);
         }
@@ -324,7 +325,7 @@ class Negotiate extends Auth\Source
     public function logout(array &$state): void
     {
         // get the source that was used to authenticate
-        $authId = $state['negotiate:backend'];
+        $authId = $state['LogoutState']['negotiate:backend'];
         Logger::debug('Negotiate - logout has the following authId: "' . $authId . '"');
 
         if ($authId === null) {
