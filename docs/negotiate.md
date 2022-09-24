@@ -54,11 +54,6 @@ All configuration is handled in authsources.php:
     'negotiate:Negotiate',
     'keytab' => '/path/to/keytab-file',
     'fallback' => 'ldap',
-    'hostname' => 'ldap.example.com',
-    'base' => 'cn=people,dc=example,dc=com',
-    'adminUser' => 'cn=idp-fallback,cn=services,dc=example,dc=com',
-    'adminPassword' => 'VerySecretPassphraseHush',
-    'referrals' => true,
     'spn' => null
 ],
 'ldap' => [
@@ -78,7 +73,6 @@ by php_krb5.
 NOTE! If running using virtual hosts or behind a reverse proxy, you
 might need to change the 'spn' variable to 0 (match any entry in the
 keytab file) or set it to the specific entry you are trying to match.
-This requires php-krb5 >= 1.1.3:
 
 ```php
 'spn' => 'HTTP/host',
@@ -135,18 +129,9 @@ if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
 LDAP is used to verify the user due to the lack of metadata in
 Kerberos. A domain can contain lots of kiosk users, non-personal
 accounts and the likes. The LDAP lookup will authorize and fetch
-attributes as defined by SimpleSamlPhp metadata.
+attributes as defined by SimpleSAMLphp metadata.
 
-'hostname', 'enable_tls', 'debugLDAP', 'timeout', 'base' and
-'referrals' are self-explanatory. Read the documentation of the LDAP
-auth module for more information. 'attr' is the attribute that will
-be used to look up user objects in the directory after extracting it
-from the Kerberos session. Default is 'uid'.
-
-For LDAP directories with restricted access to objects or attributes
-Negotiate implements 'adminUser' and 'adminPassword'. adminUser must
-be a DN to an object with access to search for all relevant user
-objects and to look up attributes needed by the SP.
+Read the documentation of the LDAP auth module for more information.
 
 ### Subnet filtering
 
