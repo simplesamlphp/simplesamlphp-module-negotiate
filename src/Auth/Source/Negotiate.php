@@ -66,6 +66,7 @@ class Negotiate extends Auth\Source
         $this->spn = $cfg->getOptionalValue('spn', null);
         $configUtils = new Utils\Config();
         $this->keytab = $configUtils->getCertPath($cfg->getString('keytab'));
+        $this->subnet = $cfg->getOptionalArray('subnet', null);
     }
 
 
