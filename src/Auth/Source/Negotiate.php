@@ -151,32 +151,32 @@ class Negotiate extends Auth\Source
                 $reply = null;
             }
 
-            // Search for the corresponding realm and set current variables
-            $userPrincipalName = $auth->getAuthenticatedUser();
-            @list($uid, $realmName) = preg_split('/@/', $userPrincipalName, 2);
-            if ($realmName === null) {
-                $this->fallBack($state);
-                return;
-            }
-
-            // Use the correct realm
-            if (isset($this->realms[$realmName])) {
-                Logger::info(sprintf('Negotiate - setting realm parameters for "%s".', $realmName));
-                $this->backend = $this->realms[$realmName];
-            } elseif (isset($this->realms['*'])) {
-                // Use default realm ("*"), if set
-                Logger::info('Negotiate - setting realm parameters with default realm.');
-                $this->backend = $this->realms['*'];
-            } else {
-                // No corresponding realm found, cancel
-                $this->fallBack($state);
-                return;
-            }
-
             if ($reply) {
                 // success! krb TGS received
-                $user = $auth->getAuthenticatedUser();
+                $userPrincipalName = $auth->getAuthenticatedUser();
                 Logger::info('Negotiate - authenticate(): ' . $userPrincipalName . ' authenticated.');
+
+                // Search for the corresponding realm and set current variables
+                @list($uid, $realmName) = preg_split('/@/', $userPrincipalName, 2);
+                if ($realmName === null) {
+                    $this->fallBack($state);
+                    return;
+                }
+
+                // Use the correct realm
+                if (isset($this->realms[$realmName])) {
+                    Logger::info(sprintf('Negotiate - setting realm parameters for "%s".', $realmName));
+                    $this->backend = $this->realms[$realmName];
+                } elseif (isset($this->realms['*'])) {
+                    // Use default realm ("*"), if set
+                    Logger::info('Negotiate - setting realm parameters with default realm.');
+                    $this->backend = $this->realms['*'];
+                } else {
+                    // No corresponding realm found, cancel
+                    $this->fallBack($state);
+                    return;
+                }
+
                 $lookup = $this->lookupUserData($uid);
                 if ($lookup !== null) {
                     $state['Attributes'] = $lookup;
