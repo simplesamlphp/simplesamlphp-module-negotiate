@@ -263,6 +263,7 @@ class NegotiateController
 
         $this->logger::debug('backend - fallback: ' . $state['LogoutState']['negotiate:backend']);
 
+        /** @psalm-suppress PropertyNotSetInConstructor */
         return new class ([Negotiate::class, 'fallBack'], $state) extends StreamedResponse
         {
             /** @var array $state */
