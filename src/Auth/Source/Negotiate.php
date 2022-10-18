@@ -72,7 +72,7 @@ class Negotiate extends Auth\Source
         parent::__construct($info, $config);
 
         $cfg = Configuration::loadFromArray($config);
-        $this->fallback = $cfg->getOptionalString('fallback', $this->backend);
+        $this->fallback = $cfg->getOptionalString('fallback', $this->fallback);
         $this->spn = $cfg->getOptionalValue('spn', null);
         $configUtils = new Utils\Config();
         $this->keytab = $configUtils->getCertPath($cfg->getString('keytab'));
