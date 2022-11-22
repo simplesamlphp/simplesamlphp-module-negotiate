@@ -196,8 +196,7 @@ class Negotiate extends Auth\Source
 
             // No auth token. Send it.
             Logger::debug('Negotiate - authenticate(): Sending Negotiate.');
-            $this->sendNegotiate($params);
-            return;
+            $this->sendNegotiate($params); // never returns
         }
 
         Logger::info('Negotiate - authenticate(): Client failed Negotiate. Falling back');
@@ -271,6 +270,7 @@ class Negotiate extends Auth\Source
         $t->data['baseurlpath'] = Module::getModuleURL('negotiate');
         $t->data['url'] = $url;
         $t->send();
+        exit;
     }
 
 
