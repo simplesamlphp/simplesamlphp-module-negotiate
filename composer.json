@@ -34,9 +34,9 @@
         "php": ">=7.4 || ^8.0",
         "ext-krb5": ">=1.1.4",
 
-        "simplesamlphp/composer-module-installer": "~1.1",
+        "simplesamlphp/composer-module-installer": "^1.3.2",
         "simplesamlphp/simplesamlphp": "^2.0.0-rc2",
-        "simplesamlphp/simplesamlphp-module-ldap": "^2.1.0"
+        "simplesamlphp/simplesamlphp-module-ldap": "^2.1.1"
     },
     "require-dev": {
         "simplesamlphp/simplesamlphp-test-framework": "^1.2.1"
