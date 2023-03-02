@@ -16,6 +16,15 @@ use SimpleSAML\Session;
 use SimpleSAML\Utils;
 use SimpleSAML\XHTML\Template;
 
+use function array_key_exists;
+use function extension_loaded;
+use function htmlspecialchars;
+use function is_int;
+use function is_null;
+use function is_string;
+use function preg_split;
+use function strlower;
+
 /**
  * The Negotiate module. Allows for password-less, secure login by Kerberos and Negotiate.
  *
@@ -28,8 +37,8 @@ class Negotiate extends Auth\Source
 
     public const AUTHID = '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate.AuthId';
 
-    /** @var string */
-    protected string $backend;
+    /** @var string|null */
+    protected ?string $backend = null;
 
     /** @var string */
     protected string $fallback;
@@ -42,6 +51,9 @@ class Negotiate extends Auth\Source
 
     /** @var array|null */
     protected ?array $subnet = null;
+
+    /** @var array */
+    private array $realms;
 
 
     /**
@@ -57,16 +69,17 @@ class Negotiate extends Auth\Source
         if (!extension_loaded('krb5')) {
             throw new Exception('KRB5 Extension not installed');
         }
+
         // call the parent constructor first, as required by the interface
         parent::__construct($info, $config);
 
         $cfg = Configuration::loadFromArray($config);
-        $this->backend = $cfg->getString('backend');
-        $this->fallback = $cfg->getOptionalString('fallback', $this->backend);
+        $this->fallback = $cfg->getOptionalString('fallback', null);
         $this->spn = $cfg->getOptionalValue('spn', null);
         $configUtils = new Utils\Config();
         $this->keytab = $configUtils->getCertPath($cfg->getString('keytab'));
         $this->subnet = $cfg->getOptionalArray('subnet', null);
+        $this->realms = $cfg->getArray('realms');
     }
 
 
@@ -85,47 +98,40 @@ class Negotiate extends Auth\Source
     {
         // set the default backend to config
         $state['LogoutState'] = [
-            'negotiate:backend' => $this->backend,
+            'negotiate:backend' => $this->fallback,
         ];
         $state['negotiate:authId'] = $this->authId;
-        $state['negotiate:fallback'] = $this->fallback;
 
 
         // check for disabled SPs. The disable flag is stored in the SP metadata
         if (array_key_exists('SPMetadata', $state) && $this->spDisabledInMetadata($state['SPMetadata'])) {
             $this->fallBack($state);
         }
+
         /* Go straight to fallback if Negotiate is disabled or if you are sent back to the IdP directly from the SP
         after having logged out. */
         $session = Session::getSessionFromRequest();
         $disabled = $session->getData('negotiate:disable', 'session');
 
         if (
-            $disabled
-            || (!empty($_COOKIE['NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT'])
-                && $_COOKIE['NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT'] === 'true')
+            $disabled ||
+            (!empty($_COOKIE['NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT']) &&
+            $_COOKIE['NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT'] === 'true')
         ) {
             Logger::debug('Negotiate - session disabled. falling back');
             $this->fallBack($state);
-            // never executed
-            assert(false);
+            return;
         }
-        $mask = $this->checkMask();
-        if (!$mask) {
+
+        if (!$this->checkMask()) {
+            Logger::debug('Negotiate - IP matches blacklisted subnets. falling back');
             $this->fallBack($state);
-            // never executed
-            assert(false);
+            return;
         }
 
         Logger::debug('Negotiate - authenticate(): looking for Negotiate');
         if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
             Logger::debug('Negotiate - authenticate(): Negotiate found');
-            list($mech,) = explode(' ', $_SERVER['HTTP_AUTHORIZATION'], 2);
-            if (strtolower($mech) === 'basic') {
-                Logger::debug('Negotiate - authenticate(): Basic found. Skipping.');
-            } elseif (strtolower($mech) !== 'negotiate') {
-                Logger::debug('Negotiate - authenticate(): No "Negotiate" found. Skipping.');
-            }
 
             Assert::true(is_string($this->spn) || (is_int($this->spn) && ($this->spn === 0)) || is_null($this->spn));
             $auth = new KRB5NegotiateAuth($this->keytab, $this->spn);
@@ -134,46 +140,68 @@ class Negotiate extends Auth\Source
             try {
                 $reply = $auth->doAuthentication();
             } catch (Exception $e) {
+                list($mech,) = explode(' ', $_SERVER['HTTP_AUTHORIZATION'], 2);
+                if (strtolower($mech) === 'basic') {
+                    Logger::debug('Negotiate - authenticate(): Basic found. Skipping.');
+                } elseif (strtolower($mech) !== 'negotiate') {
+                    Logger::debug('Negotiate - authenticate(): No "Negotiate" found. Skipping.');
+                }
                 Logger::error('Negotiate - authenticate(): doAuthentication() exception: ' . $e->getMessage());
                 $reply = null;
             }
 
             if ($reply) {
                 // success! krb TGS received
-                $user = $auth->getAuthenticatedUser();
-                Logger::info('Negotiate - authenticate(): ' . $user . ' authenticated.');
-                $lookup = $this->lookupUserData($user);
-                if ($lookup !== null) {
+                $userPrincipalName = $auth->getAuthenticatedUser();
+                Logger::info('Negotiate - authenticate(): ' . $userPrincipalName . ' authenticated.');
+
+                // Search for the corresponding realm and set current variables
+                @list($uid, $realmName) = preg_split('/@/', $userPrincipalName, 2);
+                /** @psalm-var string $realmName */
+                Assert::notNull($realmName);
+
+                // Use the correct realm
+                if (isset($this->realms[$realmName])) {
+                    Logger::info(sprintf('Negotiate - setting realm parameters for "%s".', $realmName));
+                    $this->backend = $this->realms[$realmName];
+                } elseif (isset($this->realms['*'])) {
+                    // Use default realm ("*"), if set
+                    Logger::info('Negotiate - setting realm parameters with default realm.');
+                    $this->backend = $this->realms['*'];
+                } else {
+                    // No corresponding realm found, cancel
+                    $this->fallBack($state);
+                    return;
+                }
+
+                if (($lookup = $this->lookupUserData($uid)) !== null) {
                     $state['Attributes'] = $lookup;
                     // Override the backend so logout will know what to look for
                     $state['LogoutState'] = [
                         'negotiate:backend' => null,
                     ];
-                    Logger::info('Negotiate - authenticate(): ' . $user . ' authorized.');
+                    Logger::info('Negotiate - authenticate(): ' . $userPrincipalName . ' authorized.');
                     Auth\Source::completeAuth($state);
-                    // Never reached.
-                    assert(false);
+                    return;
                 }
             } else {
                 // Some error in the received ticket. Expired?
                 Logger::info('Negotiate - authenticate(): Kerberos authN failed. Skipping.');
             }
         } else {
-            // No auth token. Send it.
-            Logger::debug('Negotiate - authenticate(): Sending Negotiate.');
             // Save the $state array, so that we can restore if after a redirect
             Logger::debug('Negotiate - fallback: ' . $state['LogoutState']['negotiate:backend']);
             $id = Auth\State::saveState($state, self::STAGEID);
             $params = ['AuthState' => $id];
 
-            $this->sendNegotiate($params);
-            exit;
+            // No auth token. Send it.
+            Logger::debug('Negotiate - authenticate(): Sending Negotiate.');
+            $this->sendNegotiate($params); // never returns
         }
 
         Logger::info('Negotiate - authenticate(): Client failed Negotiate. Falling back');
         $this->fallBack($state);
-        // The previous function never returns, so this code is never executed
-        assert(false);
+        return;
     }
 
 
@@ -214,8 +242,7 @@ class Negotiate extends Auth\Source
         $ip = $_SERVER['REMOTE_ADDR'];
         $netUtils = new Utils\Net();
         foreach ($this->subnet as $cidr) {
-            $ret = $netUtils->ipCIDRcheck($cidr);
-            if ($ret) {
+            if ($netUtils->ipCIDRcheck($cidr)) {
                 Logger::debug('Negotiate: Client "' . $ip . '" matched subnet.');
                 return true;
             }
@@ -243,6 +270,7 @@ class Negotiate extends Auth\Source
         $t->data['baseurlpath'] = Module::getModuleURL('negotiate');
         $t->data['url'] = $url;
         $t->send();
+        exit;
     }
 
 
@@ -257,12 +285,12 @@ class Negotiate extends Auth\Source
      */
     public static function fallBack(array &$state): void // never
     {
-        $authId = $state['negotiate:fallback'];
+        $authId = $state['LogoutState']['negotiate:backend'];
         if ($authId === null) {
             throw new Error\Error([500, "Unable to determine auth source."]);
         }
 
-        /** @psalm-var \SimpleSAML\Module\negotiate\Auth\Source\Negotiate|null $source */
+        /** @psalm-var \SimpleSAML\Auth\Source|null $source */
         $source = Auth\Source::getById($authId);
         if ($source === null) {
             throw new Exception('Could not find authentication source with id ' . $state[self::AUTHID]);
@@ -284,23 +312,18 @@ class Negotiate extends Auth\Source
 
 
     /**
-     * Strips away the realm of the Kerberos identifier, looks up what attributes to fetch from SP metadata and
-     * searches the directory.
+     * Looks up what attributes to fetch from SP metadata and searches the directory.
      *
-     * @param string $user The Kerberos user identifier.
+     * @param string $uid The user identifier.
      *
      * @return array|null The attributes for the user or NULL if not found.
      */
-    protected function lookupUserData(string $user): ?array
+    protected function lookupUserData(string $uid): ?array
     {
-        // Kerberos user names include realm. Strip that away.
-        $pos = strpos($user, '@');
-        if ($pos === false) {
-            return null;
-        }
-        $uid = substr($user, 0, $pos);
-
-        /** @var \SimpleSAML\Module\ldap\Auth\Source\Ldap|null $source */
+        /**
+         * @var \SimpleSAML\Module\ldap\Auth\Source\Ldap|null $source
+         * @psalm-var string $this->backend - We only reach this method when $this->backend is set
+         */
         $source = Auth\Source::getById($this->backend);
         if ($source === null) {
             throw new Exception('Could not find authentication source with id ' . $this->backend);
@@ -337,7 +360,7 @@ class Negotiate extends Auth\Source
             /** @psalm-var \SimpleSAML\Module\negotiate\Auth\Source\Negotiate|null $source */
             $source = Auth\Source::getById($authId);
             if ($source === null) {
-                throw new \Exception('Could not find authentication source with id ' . $state[self::AUTHID]);
+                throw new Exception('Could not find authentication source with id ' . $state[self::AUTHID]);
             }
             $source->logout($state);
         }

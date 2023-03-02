@@ -24,6 +24,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * Set of tests for the controllers in the "negotiate" module.
  *
  * @package SimpleSAML\Test
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 class NegotiateTest extends TestCase
 {

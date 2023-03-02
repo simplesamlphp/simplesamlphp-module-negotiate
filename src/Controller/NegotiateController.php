@@ -215,6 +215,7 @@ class NegotiateController
      */
     public function retry(Request $request): RunnableResponse
     {
+        /** @psalm-var string|null $authState */
         $authState = $request->query->get('AuthState', null);
         if ($authState === null) {
             throw new Error\BadRequest('Missing required AuthState query parameter.');
@@ -252,6 +253,7 @@ class NegotiateController
      */
     public function fallback(Request $request): StreamedResponse
     {
+        /** @psalm-var string|null $authState */
         $authState = $request->query->get('AuthState', null);
         if ($authState === null) {
             throw new Error\BadRequest('Missing required AuthState query parameter.');
@@ -261,6 +263,7 @@ class NegotiateController
 
         $this->logger::debug('backend - fallback: ' . $state['LogoutState']['negotiate:backend']);
 
+        /** @psalm-suppress PropertyNotSetInConstructor */
         return new class ([Negotiate::class, 'fallBack'], $state) extends StreamedResponse
         {
             /** @var array $state */

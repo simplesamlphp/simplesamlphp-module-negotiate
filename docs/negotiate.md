@@ -18,6 +18,7 @@ Negotiate implements the following mechanics:
   fails to authenticate in the Negotiate module
 * Check only clients from a certain subnet
 * Supports enabling/disabling a client
+* Supports multiple realm/ldap config for complex AD topology
 
 In effect this module aims to extend the Microsoft AD SSO session to
 the SAML IdP. (Or any other Kerberos domain) It doesn't work like this
@@ -53,7 +54,9 @@ All configuration is handled in authsources.php:
 'weblogin' => [
     'negotiate:Negotiate',
     'keytab' => '/path/to/keytab-file',
-    'backend' => 'ldap',
+    'realms' => [
+        '*' => 'ldap',
+    ],
     'fallback' => 'crypto-hash',
     'spn' => null,
 ],
@@ -141,6 +144,24 @@ accounts and the likes. The LDAP lookup will authorize and fetch
 attributes as defined by SimpleSAMLphp metadata.
 
 Read the documentation of the LDAP auth module for more information.
+
+This module supports using several Kerberos realms. This requires you to
+specify an LDAP configuration for each Kerberos realm that may be used.
+If you're using only one realm (one AD domain for example) then you could
+let your ldap configuration with the magic "*" key. For multi realms the
+syntax is :
+
+```php
+'weblogin' => [
+    'negotiate:Negotiate',
+    ...
+    'realms' => [
+        'realm1' => 'backend for realm1',
+        'realm2' => 'backend for realm2',
+        '*' => 'backend for any other realm',
+    ],
+],
+```
 
 ### Subnet filtering
 
