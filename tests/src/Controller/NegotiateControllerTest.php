@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @package SimpleSAML\Test
  * @psalm-suppress PropertyNotSetInConstructor
  */
-class NegotiateTest extends TestCase
+class NegotiateControllerTest extends TestCase
 {
     /** @var \SimpleSAML\Configuration */
     protected Configuration $config;
