@@ -9,6 +9,7 @@ on:
     branches: [ master, simplesamlphp-* ]
     paths-ignore:
       - '**.md'
+  workflow_dispatch:
 
 jobs:
   basic-tests:
