@@ -7,9 +7,9 @@
     </description>
 
     <file>src</file>
+    <file>public</file>
     <file>templates</file>
     <file>tests</file>
-    <file>www</file>
 
     <!-- This is the rule we inherit from. If you want to exclude some specific rules, see the docs on how to do that -->
     <rule ref="PSR12"/>
