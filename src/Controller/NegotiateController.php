@@ -275,7 +275,7 @@ class NegotiateController
                 $this->state = $state;
             }
 
-            public function sendContent()
+            public function sendContent(): static
             {
                 call_user_func_array($this->callback, [&$this->state]);
                 return $this;
