@@ -17,7 +17,6 @@ use SimpleSAML\Session;
 use SimpleSAML\XHTML\Template;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Controller class for the negotiate module.
@@ -247,11 +246,11 @@ class NegotiateController
      *
      * @param Request $request The request that lead to this retry operation.
      *
-     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     * @return \SimpleSAML\HTTP\RunnableResponse
      * @throws \SimpleSAML\Error\BadRequest
      * @throws \SimpleSAML\Error\NoState
      */
-    public function fallback(Request $request): StreamedResponse
+    public function fallback(Request $request): RunnableResponse
     {
         /** @psalm-var string|null $authState */
         $authState = $request->query->get('AuthState', null);
@@ -263,23 +262,6 @@ class NegotiateController
 
         $this->logger::debug('backend - fallback: ' . $state['LogoutState']['negotiate:backend']);
 
-        /** @psalm-suppress PropertyNotSetInConstructor */
-        return new class ([Negotiate::class, 'fallBack'], $state) extends StreamedResponse
-        {
-            /** @var array $state */
-            protected array $state;
-
-            public function __construct(callable $callback, array &$state)
-            {
-                parent::__construct($callback);
-                $this->state = $state;
-            }
-
-            public function sendContent(): static
-            {
-                call_user_func_array($this->callback, [&$this->state]);
-                return $this;
-            }
-        };
+        return new RunnableResponse([Negotiate::class, 'fallBack'], [$state]);
     }
 }
