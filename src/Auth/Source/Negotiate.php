@@ -23,7 +23,6 @@ use function is_int;
 use function is_null;
 use function is_string;
 use function preg_split;
-use function strlower;
 
 /**
  * The Negotiate module. Allows for password-less, secure login by Kerberos and Negotiate.
