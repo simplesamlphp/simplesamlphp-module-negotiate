@@ -235,7 +235,7 @@ class NegotiateController
             $this->session->setData('negotiate:disable', 'session', false, 86400); //24*60*60=86400
             $this->logger::debug('Negotiate(retry) - session enabled, retrying.');
 
-            return new RunnableResponse([$source, 'authenticate'], [$state]);
+            return new RunnableResponse([$source, 'authenticate'], [&$state]);
         }
         throw new Exception('Negotiate - retry - no "auth" parameter found in IdP metadata.');
     }
@@ -262,6 +262,6 @@ class NegotiateController
 
         $this->logger::debug('backend - fallback: ' . $state['LogoutState']['negotiate:backend']);
 
-        return new RunnableResponse([Negotiate::class, 'fallBack'], [$state]);
+        return new RunnableResponse([Negotiate::class, 'fallBack'], [&$state]);
     }
 }
