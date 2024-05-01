@@ -57,6 +57,7 @@ All configuration is handled in authsources.php:
     'realms' => [
         '*' => 'ldap',
     ],
+    'allowedCertificateHashes' => [],
     'fallback' => 'crypto-hash',
     'spn' => null,
 ],
@@ -191,6 +192,26 @@ disabling Negotiate for any given client. The pages simplly set/delete
 a cookie that Negotiate will look for when a client attempts AuthN.
 The help text in the JSON files should be locally overwritten to fully
 explain which clients are accepted by Negotiate.
+
+### Channel binding
+
+A shortage of Kerberos-over-HTTP is that there are no distinguished SPN's for HTTP- and HTTPS-services [1][1].
+This means that a ticket that's being transmitted over an insecure HTTP-connection can also be used for
+HTTPS-connections to the same host. Besides this, Kerberos is also known to be vulnerable for MitM-attacks
+where the service-label of the SPN can be altered when an alternative service is available on the same host [2][2].
+
+[1]: https://techcommunity.microsoft.com/t5/iis-support-blog/how-to-use-spns-when-you-configure-web-applications-thatare/ba-p/324648
+[2]: https://googleprojectzero.blogspot.com/2021/10/using-kerberos-for-authentication-relay.html
+
+To prevent this, certificate-based channel binding is supported by this module as of version v1.1.6.
+Syntax for this is:
+
+```php
+'allowedCertificateHashes' => [<SHA-256 finterprint 1>, <SHA-256 fingerprint 2>],
+```
+
+Usually this array will contain just the one fingerprint for the current HTTPS-certificate of this IdP, but multiple can be
+used in a certificate-rollover situation.
 
 ### Logout/Login loop and reauthenticating
 

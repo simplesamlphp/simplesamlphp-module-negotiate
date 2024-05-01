@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SimpleSAML\Module\negotiate\Auth\Source;
 
 use Exception;
+use GSSAPIChannelBinding;
 use KRB5NegotiateAuth;
 use SimpleSAML\Assert\Assert;
 use SimpleSAML\{Auth, Configuration, Error, Logger, Module, Session, Utils};
@@ -17,7 +18,11 @@ use function htmlspecialchars;
 use function is_int;
 use function is_null;
 use function is_string;
+use function pack;
+use function phpversion;
 use function preg_split;
+use function sprintf;
+use function version_compare;
 
 /**
  * The Negotiate module. Allows for password-less, secure login by Kerberos and Negotiate.
@@ -49,6 +54,9 @@ class Negotiate extends Auth\Source
     /** @var array */
     private array $realms;
 
+    /** @var string[] */
+    private array $allowedCertificateHashes;
+
 
     /**
      * Constructor for this authentication source.
@@ -74,6 +82,7 @@ class Negotiate extends Auth\Source
         $this->keytab = $configUtils->getCertPath($cfg->getString('keytab'));
         $this->subnet = $cfg->getOptionalArray('subnet', null);
         $this->realms = $cfg->getArray('realms');
+        $this->allowedCertificateHashes = $cfg->getOptionalArray('allowedCertificateHashes', null);
     }
 
 
@@ -123,16 +132,41 @@ class Negotiate extends Auth\Source
             return;
         }
 
-        Logger::debug('Negotiate - authenticate(): looking for Negotiate');
+        Logger::debug('Negotiate - authenticate(): looking for authentication header');
         if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
-            Logger::debug('Negotiate - authenticate(): Negotiate found');
+            Logger::debug('Negotiate - authenticate(): Authentication header found');
 
             Assert::true(is_string($this->spn) || (is_int($this->spn) && ($this->spn === 0)) || is_null($this->spn));
-            $auth = new KRB5NegotiateAuth($this->keytab, $this->spn);
 
             // attempt Kerberos authentication
             try {
-                $reply = $auth->doAuthentication();
+                $reply = null;
+                if (empty($this->allowedCertificateHashes) || version_compare(phpversion('krb5'), '1.1.6', '<')) {
+                    Logger::debug('Negotiate - authenticate(): Trying to authenticate without channel binding.');
+                    $auth = new KRB5NegotiateAuth($this->keytab, $this->spn);
+                    $reply = $auth->doAuthentication();
+                } else {
+                    Logger::debug('Negotiate - authenticate(): Trying to authenticate with channel binding.');
+                    foreach ($this->allowedCertificateHashes as $hash) {
+                        $binding = $this->createBinding($hash);
+                        $auth = new KRB5NegotiateAuth($this->keytab, $this->spn, $binding);
+                        try {
+                            $reply = $auth->doAuthentication();
+                            break;
+                        } catch (Exception $e) {
+                            continue;
+                        }
+                    }
+
+                    if ($reply) {
+                        Logger::debug(sprintf(
+                            'Negotiate - authenticate(): Authentication with channel binding succeeded using hash; %s.',
+                            $hash,
+                        ));
+                    } else {
+                        throw $e;
+                    }
+                }
             } catch (Exception $e) {
                 list($mech,) = explode(' ', $_SERVER['HTTP_AUTHORIZATION'], 2);
                 if (strtolower($mech) === 'basic') {
@@ -141,7 +175,6 @@ class Negotiate extends Auth\Source
                     Logger::debug('Negotiate - authenticate(): No "Negotiate" found. Skipping.');
                 }
                 Logger::error('Negotiate - authenticate(): doAuthentication() exception: ' . $e->getMessage());
-                $reply = null;
             }
 
             if ($reply) {
@@ -359,5 +392,20 @@ class Negotiate extends Auth\Source
             }
             $source->logout($state);
         }
+    }
+
+
+    /**
+     * @param string $hash
+     * @return \GSSAPIChannelBinding
+     */
+    private function createBinding(string $hash): GSSAPIChannelBinding
+    {
+        $binding = new GSSAPIChannelBinding();
+        $binding->setApplicationData(sprintf(
+            '%s:%s',
+            'tls-server-end-point',
+            pack('H*', $hash),
+        ));
     }
 }
