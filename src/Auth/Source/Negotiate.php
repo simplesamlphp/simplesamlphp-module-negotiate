@@ -7,14 +7,9 @@ namespace SimpleSAML\Module\negotiate\Auth\Source;
 use Exception;
 use KRB5NegotiateAuth;
 use SimpleSAML\Assert\Assert;
-use SimpleSAML\Auth;
-use SimpleSAML\Configuration;
-use SimpleSAML\Error;
-use SimpleSAML\Logger;
-use SimpleSAML\Module;
-use SimpleSAML\Session;
-use SimpleSAML\Utils;
+use SimpleSAML\{Auth, Configuration, Error, Logger, Module, Session, Utils};
 use SimpleSAML\XHTML\Template;
+use Symfony\Component\HttpFoundation\{IpUtils, Request};
 
 use function array_key_exists;
 use function extension_loaded;
@@ -238,14 +233,15 @@ class Negotiate extends Auth\Source
         if ($this->subnet === null) {
             return true;
         }
-        $ip = $_SERVER['REMOTE_ADDR'];
-        $netUtils = new Utils\Net();
-        foreach ($this->subnet as $cidr) {
-            if ($netUtils->ipCIDRcheck($cidr)) {
-                Logger::debug('Negotiate: Client "' . $ip . '" matched subnet.');
-                return true;
-            }
+
+        $ip = Request::createFromGlobals()->getClientIp();
+        Assert::notNull($ip, "Unable to determine client IP.");
+
+        if (IpUtils::checkIp($ip, $this->subnet)) {
+            Logger::debug('Negotiate: Client "' . $ip . '" matched subnet.');
+            return true;
         }
+
         Logger::debug('Negotiate: Client "' . $ip . '" did not match subnet.');
         return false;
     }
