@@ -162,8 +162,8 @@ class NegotiateControllerTest extends TestCase
             {
                 return [
                     'LogoutState' => [
-                        'negotiate:backend' => 'foo'
-                    ]
+                        'negotiate:backend' => 'foo',
+                    ],
                 ];
             }
         });
@@ -206,7 +206,7 @@ class NegotiateControllerTest extends TestCase
         $request = Request::create(
             '/retry',
             'GET',
-            ['AuthState' => 'someState']
+            ['AuthState' => 'someState'],
         );
 
         $c = new Controller\NegotiateController($this->config, $this->session);
@@ -216,8 +216,8 @@ class NegotiateControllerTest extends TestCase
             {
                 return [
                     'LogoutState' => [
-                        'negotiate:backend' => 'foo'
-                    ]
+                        'negotiate:backend' => 'foo',
+                    ],
                 ];
             }
         });
@@ -254,8 +254,8 @@ class NegotiateControllerTest extends TestCase
             {
                 return [
                     'LogoutState' => [
-                        'negotiate:backend' => 'foo'
-                    ]
+                        'negotiate:backend' => 'foo',
+                    ],
                 ];
             }
         });
@@ -300,7 +300,7 @@ class NegotiateControllerTest extends TestCase
     {
         $request = Request::create(
             '/retry',
-            'GET'
+            'GET',
         );
 
         $c = new Controller\NegotiateController($this->config, $this->session);
@@ -323,7 +323,7 @@ class NegotiateControllerTest extends TestCase
         $request = Request::create(
             '/backend',
             'GET',
-            ['AuthState' => 'someState']
+            ['AuthState' => 'someState'],
         );
 
         $c = new Controller\NegotiateController($this->config, $this->session);
@@ -333,8 +333,8 @@ class NegotiateControllerTest extends TestCase
             {
                 return [
                     'LogoutState' => [
-                        'negotiate:backend' => 'foo'
-                    ]
+                        'negotiate:backend' => 'foo',
+                    ],
                 ];
             }
         });
@@ -354,7 +354,7 @@ class NegotiateControllerTest extends TestCase
     {
         $request = Request::create(
             '/backend',
-            'GET'
+            'GET',
         );
 
         $c = new Controller\NegotiateController($this->config, $this->session);
