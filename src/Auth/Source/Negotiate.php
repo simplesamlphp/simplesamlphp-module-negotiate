@@ -407,5 +407,7 @@ class Negotiate extends Auth\Source
             'tls-server-end-point',
             pack('H*', $hash),
         ));
+
+        return $binding;
     }
 }
