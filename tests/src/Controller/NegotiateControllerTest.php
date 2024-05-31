@@ -50,7 +50,7 @@ class NegotiateControllerTest extends TestCase
                 'module.enable' => ['negotiate' => true],
             ],
             '[ARRAY]',
-            'simplesaml'
+            'simplesaml',
         );
 
         $this->session = Session::getSessionFromRequest();
@@ -76,7 +76,7 @@ class NegotiateControllerTest extends TestCase
     {
         $request = Request::create(
             '/enable',
-            'GET'
+            'GET',
         );
 
         $c = new Controller\NegotiateController($this->config, $this->session);
@@ -113,7 +113,7 @@ class NegotiateControllerTest extends TestCase
     {
         $request = Request::create(
             '/disable',
-            'GET'
+            'GET',
         );
 
         $c = new Controller\NegotiateController($this->config, $this->session);
@@ -152,7 +152,7 @@ class NegotiateControllerTest extends TestCase
         $request = Request::create(
             '/retry',
             'GET',
-            ['AuthState' => 'someState']
+            ['AuthState' => 'someState'],
         );
 
         $c = new Controller\NegotiateController($this->config, $this->session);
@@ -244,7 +244,7 @@ class NegotiateControllerTest extends TestCase
         $request = Request::create(
             '/retry',
             'GET',
-            ['AuthState' => 'someState']
+            ['AuthState' => 'someState'],
         );
 
         $c = new Controller\NegotiateController($this->config, $this->session);
