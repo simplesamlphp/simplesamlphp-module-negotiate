@@ -152,7 +152,7 @@ class Negotiate extends Auth\Source
                     if (version_compare(phpversion('krb5'), '1.1.6', '<')) {
                         Logger::debug('Negotiate - authenticate(): Trying to authenticate (channel binding not available).');
                         $auth = new KRB5NegotiateAuth($this->keytab, $this->spn);
-                        $reply = $auth->doAuthentication($auth);
+                        $reply = $this->doAuthentication($auth);
                     } else if (empty($this->allowedCertificateHashes)) {
                         Logger::debug('Negotiate - authenticate(): Trying to authenticate without channel binding.');
                         $auth = new KRB5NegotiateAuth($this->keytab, $this->spn, null);
