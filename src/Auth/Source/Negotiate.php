@@ -58,6 +58,9 @@ class Negotiate extends Auth\Source
     /** @var string[] */
     private array $allowedCertificateHashes;
 
+    /** @var bool */
+    private bool $enforceChannelBinding = false;
+
 
     /**
      * Constructor for this authentication source.
@@ -84,6 +87,7 @@ class Negotiate extends Auth\Source
         $this->subnet = $cfg->getOptionalArray('subnet', null);
         $this->realms = $cfg->getArray('realms');
         $this->allowedCertificateHashes = $cfg->getOptionalArray('allowedCertificateHashes', []);
+        $this->enforceChannelBinding = $cfg->getOptionalBoolean('enforceChannelBinding', false);
     }
 
 
@@ -167,17 +171,32 @@ class Negotiate extends Auth\Source
 
                             try {
                                 $reply = $this->doAuthentication($auth, $hash);
+                                break;
                             } catch (Exception $e) {
                                 continue;
                             }
                         }
-                        throw new Exception('Negotiate - authenticate(): Failed to perform channel binding using any the configured certificate hashes.');
+
+                        if ($reply === null) {
+                            throw new Error\Exception(
+                                'Negotiate - authenticate(): Failed to perform channel binding using '
+                                . 'any of the configured certificate hashes.',
+                            );
+                        }
                     }
                 } catch (Exception $e) {
                     Logger::error('Negotiate - authenticate(): doAuthentication() exception: ' . $e->getMessage());
                 }
 
                 if ($reply) {
+                    if ($this->enforceChannelBinding === true && $auth->isChannelBound() === false) {
+                        Logger::warning(
+                            'Negotiate - authenticate(): Channel not bound, but channel binding '
+                            . 'is required by configuration. Falling back',
+                        );
+                        $this->fallBack($state);
+                    }
+
                     // success! krb TGS received
                     $userPrincipalName = $auth->getAuthenticatedUser();
                     Logger::info('Negotiate - authenticate(): ' . $userPrincipalName . ' authenticated.');
