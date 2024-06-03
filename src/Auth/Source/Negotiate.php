@@ -247,7 +247,7 @@ class Negotiate extends Auth\Source
 
     private function doAuthentication(KRB5NegotiateAuth $auth, string $hash = null): bool
     {
-        if ($this->enforceChannelBinding === true && ($hash === null) || $auth->isChannelBound === false)) {
+        if ($this->enforceChannelBinding === true && (($hash === null) || ($auth->isChannelBound === false))) {
             throw new Error\Exception(
                 'Negotiate - doAuthenticate(): Channel binding is required, but the client '
                 . 'did not provide binding info.',
