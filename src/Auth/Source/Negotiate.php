@@ -23,6 +23,7 @@ use function phpversion;
 use function preg_split;
 use function sprintf;
 use function str_replace;
+use function strval;
 use function version_compare;
 
 /**
@@ -159,7 +160,7 @@ class Negotiate extends Auth\Source
                         $reply = $this->doAuthentication($auth);
                     } else if (empty($this->allowedCertificateHashes)) {
                         Logger::debug('Negotiate - authenticate(): Trying to authenticate without channel binding.');
-                        $auth = new KRB5NegotiateAuth($this->keytab, $this->spn, null);
+                        $auth = new KRB5NegotiateAuth($this->keytab, $this->spn);
                         $reply = $this->doAuthentication($auth);
                     } else {
                         Logger::debug('Negotiate - authenticate(): Trying to authenticate with channel binding.');
@@ -270,7 +271,7 @@ class Negotiate extends Auth\Source
         } catch (Exception $e) {
             Logger::debug(sprintf(
                 'Negotiate - authenticate(): Authentication with channel binding failed using hash; %s.',
-                $hash,
+                strval($hash),
             ));
             throw $e;
         }
