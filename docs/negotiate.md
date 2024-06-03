@@ -207,11 +207,14 @@ To prevent this, certificate-based channel binding is supported by this module a
 Syntax for this is:
 
 ```php
+'enforceChannelBinding' => true,
 'allowedCertificateHashes' => [<SHA-256 finterprint 1>, <SHA-256 fingerprint 2>],
 ```
 
 Usually this array will contain just the one fingerprint for the current HTTPS-certificate of this IdP, but multiple can be
 used in a certificate-rollover situation.
+If the `enforceChannelBinding` setting is set to `true`, clients that do not provide binding-info will automatically be sent
+to the fallback authsource.
 
 ### Logout/Login loop and reauthenticating
 
