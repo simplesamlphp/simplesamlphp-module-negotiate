@@ -231,7 +231,7 @@ class Negotiate extends Auth\Source
     }
 
 
-    private function doAuthentication(KRB5NegotiateAuth $auth, string $hash = null): KRB5NegotiateAuth
+    private function doAuthentication(KRB5NegotiateAuth $auth, string $hash = null): bool
     {
         $binding = $this->createBinding($hash);
 
