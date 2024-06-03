@@ -124,7 +124,7 @@ class Negotiate extends Auth\Source
 
         if (
             $disabled ||
-            (!empty($_COOKIE['NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT']) &&
+            (array_key_exists('NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT', $_COOKIE) &&
             $_COOKIE['NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT'] === 'true')
         ) {
             Logger::debug('Negotiate - session disabled. falling back');
@@ -313,7 +313,7 @@ class Negotiate extends Auth\Source
             return true;
         }
 
-        $ip = Request::createFromGlobals()->getClientIp();
+        $ip = Request::createFromGlobals()->getClientIp() ?? '127.0.0.1';
         Assert::notNull($ip, "Unable to determine client IP.");
 
         if (IpUtils::checkIp($ip, $this->subnet)) {
