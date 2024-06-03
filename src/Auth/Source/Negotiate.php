@@ -22,6 +22,7 @@ use function pack;
 use function phpversion;
 use function preg_split;
 use function sprintf;
+use function str_replace;
 use function version_compare;
 
 /**
@@ -39,8 +40,8 @@ class Negotiate extends Auth\Source
     /** @var string|null */
     protected ?string $backend = null;
 
-    /** @var string */
-    protected string $fallback;
+    /** @var string|null */
+    protected ?string $fallback;
 
     /** @var string */
     protected string $keytab;
@@ -82,7 +83,7 @@ class Negotiate extends Auth\Source
         $this->keytab = $configUtils->getCertPath($cfg->getString('keytab'));
         $this->subnet = $cfg->getOptionalArray('subnet', null);
         $this->realms = $cfg->getArray('realms');
-        $this->allowedCertificateHashes = $cfg->getOptionalArray('allowedCertificateHashes', null);
+        $this->allowedCertificateHashes = $cfg->getOptionalArray('allowedCertificateHashes', []);
     }
 
 
@@ -138,82 +139,80 @@ class Negotiate extends Auth\Source
 
             Assert::true(is_string($this->spn) || (is_int($this->spn) && ($this->spn === 0)) || is_null($this->spn));
 
-            // attempt Kerberos authentication
-            try {
-                $reply = null;
-                if (empty($this->allowedCertificateHashes) || version_compare(phpversion('krb5'), '1.1.6', '<')) {
-                    Logger::debug('Negotiate - authenticate(): Trying to authenticate without channel binding.');
-                    $auth = new KRB5NegotiateAuth($this->keytab, $this->spn);
-                    $reply = $auth->doAuthentication();
-                } else {
-                    Logger::debug('Negotiate - authenticate(): Trying to authenticate with channel binding.');
-                    foreach ($this->allowedCertificateHashes as $hash) {
-                        $binding = $this->createBinding($hash);
-                        $auth = new KRB5NegotiateAuth($this->keytab, $this->spn, $binding);
-                        try {
-                            $reply = $auth->doAuthentication();
-                            break;
-                        } catch (Exception $e) {
-                            continue;
-                        }
-                    }
-
-                    if ($reply) {
-                        Logger::debug(sprintf(
-                            'Negotiate - authenticate(): Authentication with channel binding succeeded using hash; %s.',
-                            $hash,
-                        ));
-                    } else {
-                        throw $e;
-                    }
-                }
-            } catch (Exception $e) {
-                list($mech,) = explode(' ', $_SERVER['HTTP_AUTHORIZATION'], 2);
-                if (strtolower($mech) === 'basic') {
-                    Logger::debug('Negotiate - authenticate(): Basic found. Skipping.');
-                } elseif (strtolower($mech) !== 'negotiate') {
-                    Logger::debug('Negotiate - authenticate(): No "Negotiate" found. Skipping.');
-                }
-                Logger::error('Negotiate - authenticate(): doAuthentication() exception: ' . $e->getMessage());
-            }
-
-            if ($reply) {
-                // success! krb TGS received
-                $userPrincipalName = $auth->getAuthenticatedUser();
-                Logger::info('Negotiate - authenticate(): ' . $userPrincipalName . ' authenticated.');
-
-                // Search for the corresponding realm and set current variables
-                @list($uid, $realmName) = preg_split('/@/', $userPrincipalName, 2);
-                /** @psalm-var string $realmName */
-                Assert::notNull($realmName);
-
-                // Use the correct realm
-                if (isset($this->realms[$realmName])) {
-                    Logger::info(sprintf('Negotiate - setting realm parameters for "%s".', $realmName));
-                    $this->backend = $this->realms[$realmName];
-                } elseif (isset($this->realms['*'])) {
-                    // Use default realm ("*"), if set
-                    Logger::info('Negotiate - setting realm parameters with default realm.');
-                    $this->backend = $this->realms['*'];
-                } else {
-                    // No corresponding realm found, cancel
-                    $this->fallBack($state);
-                    return;
-                }
-
-                if (($lookup = $this->lookupUserData($uid)) !== null) {
-                    $state['Attributes'] = $lookup;
-                    // Override the backend so logout will know what to look for
-                    $state['LogoutState'] = [
-                        'negotiate:backend' => null,
-                    ];
-                    Logger::info('Negotiate - authenticate(): ' . $userPrincipalName . ' authorized.');
-                    Auth\Source::completeAuth($state);
-                    return;
-                }
+            list($mech,) = explode(' ', $_SERVER['HTTP_AUTHORIZATION'], 2);
+            if (strtolower($mech) === 'basic') {
+                Logger::debug('Negotiate - authenticate(): Basic found. Skipping.');
+            } elseif (strtolower($mech) !== 'negotiate') {
+                Logger::debug('Negotiate - authenticate(): No "Negotiate" found. Skipping.');
             } else {
-                // Some error in the received ticket. Expired?
-                Logger::info('Negotiate - authenticate(): Kerberos authN failed. Skipping.');
+                // attempt Kerberos authentication
+                $reply = null;
+
+                try {
+                    if (version_compare(phpversion('krb5'), '1.1.6', '<')) {
+                        Logger::debug('Negotiate - authenticate(): Trying to authenticate (channel binding not available).');
+                        $auth = new KRB5NegotiateAuth($this->keytab, $this->spn);
+                        $reply = $auth->doAuthentication($auth);
+                    } else if (empty($this->allowedCertificateHashes)) {
+                        Logger::debug('Negotiate - authenticate(): Trying to authenticate without channel binding.');
+                        $auth = new KRB5NegotiateAuth($this->keytab, $this->spn, null);
+                        $reply = $this->doAuthentication();
+                    } else {
+                        Logger::debug('Negotiate - authenticate(): Trying to authenticate with channel binding.');
+                        $auth = new KRB5NegotiateAuth($this->keytab, $this->spn, $binding);
+
+                        $hashes = str_replace(':', '', $this->allowedCertificateHashes);
+                        foreach ($hashes as $hash) {
+                            try {
+                                $reply = $this->doAuthentication($hash);
+                            } catch (Exception $e) {
+                                continue;
+                            }
+                        }
+                        throw new Exception('Negotiate - authenticate(): Failed to perform channel binding using any the configured certificate hashes.');
+                    }
+                } catch (Exception $e) {
+                    Logger::error('Negotiate - authenticate(): doAuthentication() exception: ' . $e->getMessage());
+                }
+
+                if ($reply) {
+                    // success! krb TGS received
+                    $userPrincipalName = $auth->getAuthenticatedUser();
+                    Logger::info('Negotiate - authenticate(): ' . $userPrincipalName . ' authenticated.');
+
+                    // Search for the corresponding realm and set current variables
+                    @list($uid, $realmName) = preg_split('/@/', $userPrincipalName, 2);
+                    /** @psalm-var string $realmName */
+                    Assert::notNull($realmName);
+
+                    // Use the correct realm
+                    if (isset($this->realms[$realmName])) {
+                        Logger::info(sprintf('Negotiate - setting realm parameters for "%s".', $realmName));
+                        $this->backend = $this->realms[$realmName];
+                    } elseif (isset($this->realms['*'])) {
+                        // Use default realm ("*"), if set
+                        Logger::info('Negotiate - setting realm parameters with default realm.');
+                        $this->backend = $this->realms['*'];
+                    } else {
+                        // No corresponding realm found, cancel
+                        $this->fallBack($state);
+                        return;
+                    }
+
+                    if (($lookup = $this->lookupUserData($uid)) !== null) {
+                        $state['Attributes'] = $lookup;
+                        // Override the backend so logout will know what to look for
+                        $state['LogoutState'] = [
+                            'negotiate:backend' => null,
+                        ];
+                        Logger::info('Negotiate - authenticate(): ' . $userPrincipalName . ' authorized.');
+                        Auth\Source::completeAuth($state);
+                        return;
+                    }
+                } else {
+                    // Some error in the received ticket. Expired?
+                    Logger::info('Negotiate - authenticate(): Kerberos authN failed. Skipping.');
+                }
             }
         } else {
             // Save the $state array, so that we can restore if after a redirect
@@ -229,6 +228,33 @@ class Negotiate extends Auth\Source
         Logger::info('Negotiate - authenticate(): Client failed Negotiate. Falling back');
         $this->fallBack($state);
         return;
+    }
+
+
+    private function doAuthentication(KRB5NegotiateAuth $auth, string $hash = null): KRB5NegotiateAuth
+    {
+        $binding = $this->createBinding($hash);
+
+        try {
+            $reply = $auth->doAuthentication();
+            if ($hash !== null) {
+                Logger::debug(sprintf(
+                    'Negotiate - authenticate(): Authentication with channel binding succeeded using hash; %s.',
+                    $hash,
+                ));
+            } else {
+                Logger::debug(
+                    'Negotiate - authenticate(): Authentication without channel binding succeeded.',
+                );
+            }
+            return $reply;
+        } catch (Exception $e) {
+            Logger::debug(sprintf(
+                'Negotiate - authenticate(): Authentication with channel binding failed using hash; %s.',
+                $hash,
+            ));
+            throw $e;
+        }
     }
 
 
