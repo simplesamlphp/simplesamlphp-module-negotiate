@@ -158,7 +158,7 @@ class Negotiate extends Auth\Source
                         Logger::debug('Negotiate - authenticate(): Trying to authenticate (channel binding not available).');
                         $auth = new KRB5NegotiateAuth($this->keytab, $this->spn);
                         $reply = $this->doAuthentication($auth);
-                    } else if (empty($this->allowedCertificateHashes)) {
+                    } else if (empty($this->allowedCertificateHashes) && $this->enforceChannelBinding === false) {
                         Logger::debug('Negotiate - authenticate(): Trying to authenticate without channel binding.');
                         $auth = new KRB5NegotiateAuth($this->keytab, $this->spn);
                         $reply = $this->doAuthentication($auth);
@@ -190,14 +190,6 @@ class Negotiate extends Auth\Source
                 }
 
                 if ($reply) {
-                    if ($this->enforceChannelBinding === true && $auth->isChannelBound() === false) {
-                        Logger::warning(
-                            'Negotiate - authenticate(): Channel not bound, but channel binding '
-                            . 'is required by configuration. Falling back',
-                        );
-                        $this->fallBack($state);
-                    }
-
                     // success! krb TGS received
                     $userPrincipalName = $auth->getAuthenticatedUser();
                     Logger::info('Negotiate - authenticate(): ' . $userPrincipalName . ' authenticated.');
@@ -255,6 +247,9 @@ class Negotiate extends Auth\Source
 
     private function doAuthentication(KRB5NegotiateAuth $auth, string $hash = null): bool
     {
+        if ($this->enforceChannelBinding === true && $auth->isChannelBound === false) {
+        }
+
         try {
             $reply = $auth->doAuthentication();
             if ($hash !== null) {
