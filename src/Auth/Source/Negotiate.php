@@ -218,7 +218,7 @@ class Negotiate extends Auth\Source
                         $state['Attributes'] = $lookup;
                         // Override the backend so logout will know what to look for
                         $state['LogoutState'] = [
-                            'negotiate:backend' => null,
+                            'negotiate:backend' => $this->backend,
                         ];
                         Logger::info('Negotiate - authenticate(): ' . $userPrincipalName . ' authorized.');
                         Auth\Source::completeAuth($state);
