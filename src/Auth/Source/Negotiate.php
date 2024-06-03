@@ -156,7 +156,7 @@ class Negotiate extends Auth\Source
                     } else if (empty($this->allowedCertificateHashes)) {
                         Logger::debug('Negotiate - authenticate(): Trying to authenticate without channel binding.');
                         $auth = new KRB5NegotiateAuth($this->keytab, $this->spn, null);
-                        $reply = $this->doAuthentication();
+                        $reply = $this->doAuthentication($auth);
                     } else {
                         Logger::debug('Negotiate - authenticate(): Trying to authenticate with channel binding.');
 
@@ -166,7 +166,7 @@ class Negotiate extends Auth\Source
                             $auth = new KRB5NegotiateAuth($this->keytab, $this->spn, $binding);
 
                             try {
-                                $reply = $this->doAuthentication($hash);
+                                $reply = $this->doAuthentication($auth, $hash);
                             } catch (Exception $e) {
                                 continue;
                             }
