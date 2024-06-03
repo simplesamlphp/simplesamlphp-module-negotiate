@@ -191,6 +191,7 @@ class Negotiate extends Auth\Source
 
                 if ($reply) {
                     // success! krb TGS received
+                    /** @psalm-var \KRB5NegotiateAuth $auth */
                     $userPrincipalName = $auth->getAuthenticatedUser();
                     Logger::info('Negotiate - authenticate(): ' . $userPrincipalName . ' authenticated.');
 
