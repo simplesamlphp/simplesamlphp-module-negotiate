@@ -139,7 +139,7 @@ class Negotiate extends Auth\Source
         }
 
         Logger::debug('Negotiate - authenticate(): looking for authentication header');
-        if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+        if (array_key_exists('HTTP_AUTHORIZATION', $_SERVER) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
             Logger::debug('Negotiate - authenticate(): Authentication header found');
 
             Assert::true(is_string($this->spn) || (is_int($this->spn) && ($this->spn === 0)) || is_null($this->spn));
