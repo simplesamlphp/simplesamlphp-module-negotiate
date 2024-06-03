@@ -247,25 +247,29 @@ class Negotiate extends Auth\Source
 
     private function doAuthentication(KRB5NegotiateAuth $auth, string $hash = null): bool
     {
-        if ($this->enforceChannelBinding === true && $auth->isChannelBound === false) {
+        if ($this->enforceChannelBinding === true && ($hash === null) || $auth->isChannelBound === false)) {
+            throw new Exception(
+                'Negotiate - doAuthenticate(): Channel binding is required, but the client '
+                . 'did not provide binding info.',
+            );
         }
 
         try {
             $reply = $auth->doAuthentication();
             if ($hash !== null) {
                 Logger::debug(sprintf(
-                    'Negotiate - authenticate(): Authentication with channel binding succeeded using hash; %s.',
+                    'Negotiate - doAuthenticate(): Authentication with channel binding succeeded using hash; %s.',
                     $hash,
                 ));
             } else {
                 Logger::debug(
-                    'Negotiate - authenticate(): Authentication without channel binding succeeded.',
+                    'Negotiate - doAuthenticate(): Authentication without channel binding succeeded.',
                 );
             }
             return $reply;
         } catch (Exception $e) {
             Logger::debug(sprintf(
-                'Negotiate - authenticate(): Authentication with channel binding failed using hash; %s.',
+                'Negotiate - doAuthenticate(): Authentication with channel binding failed using hash; %s.',
                 strval($hash),
             ));
             throw $e;
