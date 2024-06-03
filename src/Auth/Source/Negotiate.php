@@ -159,10 +159,12 @@ class Negotiate extends Auth\Source
                         $reply = $this->doAuthentication();
                     } else {
                         Logger::debug('Negotiate - authenticate(): Trying to authenticate with channel binding.');
-                        $auth = new KRB5NegotiateAuth($this->keytab, $this->spn, $binding);
 
                         $hashes = str_replace(':', '', $this->allowedCertificateHashes);
                         foreach ($hashes as $hash) {
+                            $binding = $this->createBinding($hash);
+                            $auth = new KRB5NegotiateAuth($this->keytab, $this->spn, $binding);
+
                             try {
                                 $reply = $this->doAuthentication($hash);
                             } catch (Exception $e) {
@@ -233,8 +235,6 @@ class Negotiate extends Auth\Source
 
     private function doAuthentication(KRB5NegotiateAuth $auth, string $hash = null): bool
     {
-        $binding = $this->createBinding($hash);
-
         try {
             $reply = $auth->doAuthentication();
             if ($hash !== null) {
