@@ -178,7 +178,7 @@ class Negotiate extends Auth\Source
                             }
                         }
 
-                        if ($reply === null) {
+                        if (!$auth->isChannelBound()) {
                             throw new Error\Exception(
                                 'Negotiate - authenticate(): Failed to perform channel binding using '
                                 . 'any of the configured certificate hashes.',
@@ -248,7 +248,7 @@ class Negotiate extends Auth\Source
 
     private function doAuthentication(KRB5NegotiateAuth $auth, string $hash = null): bool
     {
-        if ($this->enforceChannelBinding === true && (($hash === null) || ($auth->isChannelBound() === false))) {
+        if ($this->enforceChannelBinding === true && ($hash === null)) {
             throw new Error\Exception(
                 'Negotiate - doAuthenticate(): Channel binding is required, but the client '
                 . 'did not provide binding info.',
