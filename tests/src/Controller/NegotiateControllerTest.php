@@ -271,7 +271,7 @@ final class NegotiateControllerTest extends TestCase
                 // stub
             }
 
-            public static function getById(string $authId, string $type = null): ?Source
+            public static function getById(string $authId, ?string $type = null): ?Source
             {
                 return null;
             }
