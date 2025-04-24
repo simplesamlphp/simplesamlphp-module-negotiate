@@ -23,18 +23,11 @@ use Symfony\Component\HttpFoundation\Request;
  * @package SimpleSAML\Test
  * @psalm-suppress PropertyNotSetInConstructor
  */
-class NegotiateControllerTest extends TestCase
+final class NegotiateControllerTest extends TestCase
 {
-    /** @var \SimpleSAML\Configuration */
     protected Configuration $config;
-
-    /** @var Logger \SimpleSAML\Logger */
-    protected \SimpleSAML\Logger $logger;
-
-    /** @var \SimpleSAML\Module */
+    protected Logger $logger;
     protected Module $module;
-
-    /** @var \SimpleSAML\Session */
     protected Session $session;
 
 

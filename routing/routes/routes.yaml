@@ -1,19 +1,29 @@
+---
+
 negotiate-enable:
-    path:       /enable
-    defaults:   { _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::enable' }
-    methods:    [GET]
+  path: /enable
+  defaults: {
+    _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::enable'
+  }
+  methods: [GET]
 
 negotiate-disable:
-    path:       /disable
-    defaults:   { _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::disable' }
-    methods:    [GET]
+  path: /disable
+  defaults: {
+    _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::disable'
+  }
+  methods: [GET]
 
 negotiate-retry:
-    path:       /retry
-    defaults:   { _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::retry' }
-    methods:    [GET]
+  path: /retry
+  defaults: {
+    _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::retry'
+  }
+  methods: [GET]
 
 negotiate-fallback:
-    path:       /backend
-    defaults:   { _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::fallback' }
-    methods:    [GET]
+  path: /backend
+  defaults: {
+    _controller: 'SimpleSAML\Module\negotiate\Controller\NegotiateController::fallback'
+  }
+  methods: [GET]
