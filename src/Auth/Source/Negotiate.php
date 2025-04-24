@@ -423,7 +423,7 @@ class Negotiate extends Auth\Source
     public function logout(array &$state): void
     {
         // get the source that was used to authenticate
-        $authId = $state['LogoutState']['negotiate:backend'];
+        $authId = $state['negotiate:backend'];
         Logger::debug('Negotiate - logout has the following authId: "' . $authId . '"');
 
         if ($authId === null) {
