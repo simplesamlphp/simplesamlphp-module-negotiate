@@ -50,10 +50,10 @@ class Negotiate extends Auth\Source
     /** @var string|integer|null */
     protected $spn = null;
 
-    /** @var array|null */
+    /** @var string[]|null */
     protected ?array $subnet = null;
 
-    /** @var array */
+    /** @var string[] */
     private array $realms;
 
     /** @var string[] */
@@ -66,8 +66,8 @@ class Negotiate extends Auth\Source
     /**
      * Constructor for this authentication source.
      *
-     * @param array $info Information about this authentication source.
-     * @param array $config The configuration of the module
+     * @param array<mixed> $info Information about this authentication source.
+     * @param array<mixed> $config The configuration of the module
      *
      * @throws \Exception If the KRB5 extension is not installed or active.
      */
@@ -101,7 +101,7 @@ class Negotiate extends Auth\Source
      *
      * LDAP is used as a user metadata source.
      *
-     * @param array &$state Information about the current authentication.
+     * @param array<mixed> &$state Information about the current authentication.
      */
     public function authenticate(array &$state): void
     {
@@ -151,7 +151,7 @@ class Negotiate extends Auth\Source
                 Logger::debug('Negotiate - authenticate(): No "Negotiate" found. Skipping.');
             } else {
                 // attempt Kerberos authentication
-                $reply = null;
+                $reply = $auth = null;
 
                 try {
                     if (version_compare(phpversion('krb5'), '1.1.6', '<')) {
@@ -178,7 +178,7 @@ class Negotiate extends Auth\Source
                             }
                         }
 
-                        if (!$auth->isChannelBound()) {
+                        if ($auth === null || !$auth->isChannelBound()) {
                             throw new Error\Exception(
                                 'Negotiate - authenticate(): Failed to perform channel binding using '
                                 . 'any of the configured certificate hashes.',
@@ -189,15 +189,13 @@ class Negotiate extends Auth\Source
                     Logger::error('Negotiate - authenticate(): doAuthentication() exception: ' . $e->getMessage());
                 }
 
-                if ($reply) {
+                if ($reply && $auth !== null) {
                     // success! krb TGS received
-                    /** @psalm-var \KRB5NegotiateAuth $auth */
                     $userPrincipalName = $auth->getAuthenticatedUser();
                     Logger::info('Negotiate - authenticate(): ' . $userPrincipalName . ' authenticated.');
 
                     // Search for the corresponding realm and set current variables
                     @list($uid, $realmName) = preg_split('/@/', $userPrincipalName, 2);
-                    /** @psalm-var string $realmName */
                     Assert::notNull($realmName);
 
                     // Use the correct realm
@@ -279,7 +277,7 @@ class Negotiate extends Auth\Source
 
 
     /**
-     * @param array $spMetadata
+     * @param array<mixed> $spMetadata
      * @return bool
      */
     public function spDisabledInMetadata(array $spMetadata): bool
@@ -330,7 +328,7 @@ class Negotiate extends Auth\Source
      * Send the actual headers and body of the 401. Embedded in the body is a post that is triggered by JS if the client
      * wants to show the 401 message.
      *
-     * @param array $params additional parameters to the URL in the URL in the body.
+     * @param array<mixed> $params additional parameters to the URL in the URL in the body.
      */
     protected function sendNegotiate(array $params): void
     {
@@ -351,7 +349,7 @@ class Negotiate extends Auth\Source
     /**
      * Passes control of the login process to a different module.
      *
-     * @param array $state Information about the current authentication.
+     * @param array<mixed> $state Information about the current authentication.
      *
      * @throws \SimpleSAML\Error\Error If couldn't determine the auth source.
      * @throws \SimpleSAML\Error\Exception
@@ -364,7 +362,6 @@ class Negotiate extends Auth\Source
             throw new Error\Error([500, "Unable to determine auth source."]);
         }
 
-        /** @psalm-var \SimpleSAML\Auth\Source|null $source */
         $source = Auth\Source::getById($authId);
         if ($source === null) {
             throw new Exception('Could not find authentication source with id ' . $state[self::AUTHID]);
@@ -390,13 +387,12 @@ class Negotiate extends Auth\Source
      *
      * @param string $uid The user identifier.
      *
-     * @return array|null The attributes for the user or NULL if not found.
+     * @return array<mixed>|null The attributes for the user or NULL if not found.
      */
     protected function lookupUserData(string $uid): ?array
     {
         /**
          * @var \SimpleSAML\Module\ldap\Auth\Source\Ldap|null $source
-         * @psalm-var string $this->backend - We only reach this method when $this->backend is set
          */
         $source = Auth\Source::getById($this->backend);
         if ($source === null) {
@@ -418,7 +414,7 @@ class Negotiate extends Auth\Source
      * This method either logs the user out from Negotiate or passes the
      * logout call to the fallback module.
      *
-     * @param array &$state Information about the current logout operation.
+     * @param array<mixed> &$state Information about the current logout operation.
      */
     public function logout(array &$state): void
     {
@@ -431,7 +427,6 @@ class Negotiate extends Auth\Source
             $session->setData('negotiate:disable', 'session', true, 24 * 60 * 60);
             parent::logout($state);
         } else {
-            /** @psalm-var \SimpleSAML\Module\negotiate\Auth\Source\Negotiate|null $source */
             $source = Auth\Source::getById($authId);
             if ($source === null) {
                 throw new Exception('Could not find authentication source with id ' . $state[self::AUTHID]);

@@ -81,7 +81,7 @@ final class NegotiateControllerTest extends TestCase
         $this->assertTrue($response->isSuccessful());
 
         // Validate cookie
-        /** @var non-empty-array $cookies */
+        /** @var non-empty-array<mixed> $cookies */
         $cookies = $response->headers->getCookies();
         foreach ($cookies as $cookie) {
             if ($cookie->getName() === 'NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT') {
@@ -118,7 +118,7 @@ final class NegotiateControllerTest extends TestCase
         $this->assertTrue($response->isSuccessful());
 
         // Validate cookie
-        /** @var non-empty-array $cookies */
+        /** @var non-empty-array<mixed> $cookies */
         $cookies = $response->headers->getCookies();
         foreach ($cookies as $cookie) {
             if ($cookie->getName() === 'NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT') {
@@ -151,7 +151,8 @@ final class NegotiateControllerTest extends TestCase
         $c = new Controller\NegotiateController($this->config, $this->session);
         $c->setLogger($this->logger);
         $c->setAuthState(new class () extends State {
-            public static function loadState(string $id, string $stage, bool $allowMissing = false): ?array
+            /** @return array<mixed> */
+            public static function loadState(string $id, string $stage, bool $allowMissing = false): array
             {
                 return [
                     'LogoutState' => [
@@ -174,10 +175,13 @@ final class NegotiateControllerTest extends TestCase
                 // stub
             }
 
+
+            /** @param array<mixed> $state */
             public function authenticate(array &$state): void
             {
                 // stub
             }
+
 
             public static function getById(string $authId, ?string $type = null): ?Source
             {
@@ -205,7 +209,8 @@ final class NegotiateControllerTest extends TestCase
         $c = new Controller\NegotiateController($this->config, $this->session);
         $c->setLogger($this->logger);
         $c->setAuthState(new class () extends State {
-            public static function loadState(string $id, string $stage, bool $allowMissing = false): ?array
+            /** @return array<mixed> */
+            public static function loadState(string $id, string $stage, bool $allowMissing = false): array
             {
                 return [
                     'LogoutState' => [
@@ -243,7 +248,8 @@ final class NegotiateControllerTest extends TestCase
         $c = new Controller\NegotiateController($this->config, $this->session);
         $c->setLogger($this->logger);
         $c->setAuthState(new class () extends State {
-            public static function loadState(string $id, string $stage, bool $allowMissing = false): ?array
+            /** @return array<mixed> */
+            public static function loadState(string $id, string $stage, bool $allowMissing = false): array
             {
                 return [
                     'LogoutState' => [
@@ -266,6 +272,8 @@ final class NegotiateControllerTest extends TestCase
                 // stub
             }
 
+
+            /** @param array<mixed> $state */
             public function authenticate(array &$state): void
             {
                 // stub
@@ -322,7 +330,8 @@ final class NegotiateControllerTest extends TestCase
         $c = new Controller\NegotiateController($this->config, $this->session);
         $c->setLogger($this->logger);
         $c->setAuthState(new class () extends State {
-            public static function loadState(string $id, string $stage, bool $allowMissing = false): ?array
+            /** @return array<mixed> */
+            public static function loadState(string $id, string $stage, bool $allowMissing = false): array
             {
                 return [
                     'LogoutState' => [
