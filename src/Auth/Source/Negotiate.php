@@ -8,9 +8,16 @@ use Exception;
 use GSSAPIChannelBinding;
 use KRB5NegotiateAuth;
 use SimpleSAML\Assert\Assert;
-use SimpleSAML\{Auth, Configuration, Error, Logger, Module, Session, Utils};
+use SimpleSAML\Auth;
+use SimpleSAML\Configuration;
+use SimpleSAML\Error;
+use SimpleSAML\Logger;
+use SimpleSAML\Module;
+use SimpleSAML\Session;
+use SimpleSAML\Utils;
 use SimpleSAML\XHTML\Template;
-use Symfony\Component\HttpFoundation\{IpUtils, Request};
+use Symfony\Component\HttpFoundation\IpUtils;
+use Symfony\Component\HttpFoundation\Request;
 
 use function array_key_exists;
 use function extension_loaded;
@@ -37,6 +44,7 @@ class Negotiate extends Auth\Source
     public const STAGEID = '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate.StageId';
 
     public const AUTHID = '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate.AuthId';
+
 
     /** @var string|null */
     protected ?string $backend = null;
@@ -155,10 +163,12 @@ class Negotiate extends Auth\Source
 
                 try {
                     if (version_compare(phpversion('krb5'), '1.1.6', '<')) {
-                        Logger::debug('Negotiate - authenticate(): Trying to authenticate (channel binding not available).');
+                        Logger::debug(
+                            'Negotiate - authenticate(): Trying to authenticate (channel binding not available).',
+                        );
                         $auth = new KRB5NegotiateAuth($this->keytab, $this->spn);
                         $reply = $this->doAuthentication($auth);
-                    } else if (empty($this->allowedCertificateHashes) && $this->enforceChannelBinding === false) {
+                    } elseif (empty($this->allowedCertificateHashes) && $this->enforceChannelBinding === false) {
                         Logger::debug('Negotiate - authenticate(): Trying to authenticate without channel binding.');
                         $auth = new KRB5NegotiateAuth($this->keytab, $this->spn);
                         $reply = $this->doAuthentication($auth);

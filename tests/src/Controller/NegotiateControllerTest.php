@@ -26,8 +26,11 @@ use Symfony\Component\HttpFoundation\Request;
 final class NegotiateControllerTest extends TestCase
 {
     protected Configuration $config;
+
     protected Logger $logger;
+
     protected Module $module;
+
     protected Session $session;
 
 
@@ -183,7 +186,7 @@ final class NegotiateControllerTest extends TestCase
             }
 
 
-            public static function getById(string $authId, ?string $type = null): ?Source
+            public static function getById(string $authId, ?string $type = null): Source
             {
                 return new static();
             }
@@ -279,7 +282,8 @@ final class NegotiateControllerTest extends TestCase
                 // stub
             }
 
-            public static function getById(string $authId, ?string $type = null): ?Source
+
+            public static function getById(string $authId, ?string $type = null): null
             {
                 return null;
             }
@@ -316,8 +320,8 @@ final class NegotiateControllerTest extends TestCase
 
     /**
      * Test that a valid requests results in a RunnableResponse
-     * @throws Error\BadRequest
-     * @throws Error\NoState
+     * @throws \SimpleSAML\Error\BadRequest
+     * @throws \SimpleSAML\Error\NoState
      */
     public function testBackend(): void
     {
@@ -349,8 +353,8 @@ final class NegotiateControllerTest extends TestCase
 
     /**
      * Test that a missing AuthState results in a BadRequest-error
-     * @throws Error\BadRequest
-     * @throws Error\NoState
+     * @throws \SimpleSAML\Error\BadRequest
+     * @throws \SimpleSAML\Error\NoState
      */
     public function testBackendMissingState(): void
     {
