@@ -34,17 +34,17 @@
         }
     },
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "ext-krb5": ">=1.2.4",
 
-        "simplesamlphp/assert": "~1.9.1",
-        "simplesamlphp/composer-module-installer": "~1.5.0",
-        "simplesamlphp/simplesamlphp": "^2.4.0",
-        "simplesamlphp/simplesamlphp-module-ldap": "^2.4.9",
-        "symfony/http-foundation": "^6.4.0"
+        "simplesamlphp/assert": "^1.9",
+        "simplesamlphp/composer-module-installer": "^1.6",
+        "simplesamlphp/simplesamlphp": "^2.5@dev",
+        "simplesamlphp/simplesamlphp-module-ldap": "^2.5",
+        "symfony/http-foundation": "^7.4"
     },
     "require-dev": {
-        "simplesamlphp/simplesamlphp-test-framework": "^1.10.3"
+        "simplesamlphp/simplesamlphp-test-framework": "^1.11"
     },
     "support": {
         "issues": "https://github.com/simplesamlphp/simplesamlphp-module-negotiate/issues",
