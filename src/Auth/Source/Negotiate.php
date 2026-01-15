@@ -41,22 +41,18 @@ use function version_compare;
 class Negotiate extends Auth\Source
 {
     // Constants used in the module
-    public const STAGEID = '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate.StageId';
+    public const string STAGEID = '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate.StageId';
 
-    public const AUTHID = '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate.AuthId';
+    public const string AUTHID = '\SimpleSAML\Module\negotiate\Auth\Source\Negotiate.AuthId';
 
 
-    /** @var string|null */
     protected ?string $backend = null;
 
-    /** @var string|null */
     protected ?string $fallback;
 
-    /** @var string */
     protected string $keytab;
 
-    /** @var string|integer|null */
-    protected $spn = null;
+    protected string|int|null $spn = null;
 
     /** @var string[]|null */
     protected ?array $subnet = null;
@@ -67,7 +63,6 @@ class Negotiate extends Auth\Source
     /** @var string[] */
     private array $allowedCertificateHashes;
 
-    /** @var bool */
     private bool $enforceChannelBinding = false;
 
 
