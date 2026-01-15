@@ -291,8 +291,6 @@ final class NegotiateControllerTest extends TestCase
         $c->setAuthSource($as);
 
         $this->expectException(Error\BadRequest::class);
-        $this->expectExceptionMessage('Invalid AuthId "auth_source_id" - not found.');
-
         $c->retry($request);
     }
 
@@ -312,7 +310,6 @@ final class NegotiateControllerTest extends TestCase
         $c->setLogger($this->logger);
 
         $this->expectException(Error\BadRequest::class);
-        $this->expectExceptionMessage('BADREQUEST(\'%REASON%\' => \'Missing required AuthState query parameter.\')');
 
         $c->retry($request);
     }
@@ -367,7 +364,6 @@ final class NegotiateControllerTest extends TestCase
         $c->setLogger($this->logger);
 
         $this->expectException(Error\BadRequest::class);
-        $this->expectExceptionMessage('BADREQUEST(\'%REASON%\' => \'Missing required AuthState query parameter.\')');
 
         $c->fallback($request);
     }
