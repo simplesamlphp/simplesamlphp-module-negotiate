@@ -215,6 +215,12 @@ class Negotiate extends Auth\Source
                     }
 
                     if (($lookup = $this->lookupUserData($uid)) !== null) {
+                        if ($state['core:username'] !== null && strcasecmp($lookup['userPrincipalName'][0], $state['core:username']) !== 0) {
+                            // The login-hint doesn't match the already authenticated user. Fall back.
+                            $this->fallBack($state);
+                            return;
+                        }
+
                         $state['Attributes'] = $lookup;
                         // Override the backend so logout will know what to look for
                         $state['LogoutState'] = [
