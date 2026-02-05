@@ -218,7 +218,11 @@ class Negotiate extends Auth\Source
                     }
 
                     if (($lookup = $this->lookupUserData($uid)) !== null) {
-                        if ($state['core:username'] !== null && strcasecmp($lookup['userPrincipalName'][0], $state['core:username']) !== 0) {
+                        if (
+                            array_key_exists('core:username', $state)
+                            && $state['core:username'] !== null
+                            && strcasecmp($lookup['userPrincipalName'][0], $state['core:username']) !== 0
+                        ) {
                             // The login-hint doesn't match the already authenticated user. Fall back.
                             $this->fallBack($state);
                             return;
