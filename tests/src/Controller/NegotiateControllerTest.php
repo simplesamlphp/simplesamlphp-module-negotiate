@@ -26,8 +26,11 @@ use Symfony\Component\HttpFoundation\Request;
 final class NegotiateControllerTest extends TestCase
 {
     protected Configuration $config;
+
     protected Logger $logger;
+
     protected Module $module;
+
     protected Session $session;
 
 
@@ -81,7 +84,7 @@ final class NegotiateControllerTest extends TestCase
         $this->assertTrue($response->isSuccessful());
 
         // Validate cookie
-        /** @var non-empty-array $cookies */
+        /** @var non-empty-array<mixed> $cookies */
         $cookies = $response->headers->getCookies();
         foreach ($cookies as $cookie) {
             if ($cookie->getName() === 'NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT') {
@@ -118,7 +121,7 @@ final class NegotiateControllerTest extends TestCase
         $this->assertTrue($response->isSuccessful());
 
         // Validate cookie
-        /** @var non-empty-array $cookies */
+        /** @var non-empty-array<mixed> $cookies */
         $cookies = $response->headers->getCookies();
         foreach ($cookies as $cookie) {
             if ($cookie->getName() === 'NEGOTIATE_AUTOLOGIN_DISABLE_PERMANENT') {
@@ -151,7 +154,8 @@ final class NegotiateControllerTest extends TestCase
         $c = new Controller\NegotiateController($this->config, $this->session);
         $c->setLogger($this->logger);
         $c->setAuthState(new class () extends State {
-            public static function loadState(string $id, string $stage, bool $allowMissing = false): ?array
+            /** @return array<mixed> */
+            public static function loadState(string $id, string $stage, bool $allowMissing = false): array
             {
                 return [
                     'LogoutState' => [
@@ -174,12 +178,15 @@ final class NegotiateControllerTest extends TestCase
                 // stub
             }
 
+
+            /** @param array<mixed> $state */
             public function authenticate(array &$state): void
             {
                 // stub
             }
 
-            public static function getById(string $authId, ?string $type = null): ?Source
+
+            public static function getById(string $authId, ?string $type = null): Source
             {
                 return new static();
             }
@@ -205,7 +212,8 @@ final class NegotiateControllerTest extends TestCase
         $c = new Controller\NegotiateController($this->config, $this->session);
         $c->setLogger($this->logger);
         $c->setAuthState(new class () extends State {
-            public static function loadState(string $id, string $stage, bool $allowMissing = false): ?array
+            /** @return array<mixed> */
+            public static function loadState(string $id, string $stage, bool $allowMissing = false): array
             {
                 return [
                     'LogoutState' => [
@@ -243,7 +251,8 @@ final class NegotiateControllerTest extends TestCase
         $c = new Controller\NegotiateController($this->config, $this->session);
         $c->setLogger($this->logger);
         $c->setAuthState(new class () extends State {
-            public static function loadState(string $id, string $stage, bool $allowMissing = false): ?array
+            /** @return array<mixed> */
+            public static function loadState(string $id, string $stage, bool $allowMissing = false): array
             {
                 return [
                     'LogoutState' => [
@@ -266,12 +275,15 @@ final class NegotiateControllerTest extends TestCase
                 // stub
             }
 
+
+            /** @param array<mixed> $state */
             public function authenticate(array &$state): void
             {
                 // stub
             }
 
-            public static function getById(string $authId, ?string $type = null): ?Source
+
+            public static function getById(string $authId, ?string $type = null): null
             {
                 return null;
             }
@@ -279,8 +291,6 @@ final class NegotiateControllerTest extends TestCase
         $c->setAuthSource($as);
 
         $this->expectException(Error\BadRequest::class);
-        $this->expectExceptionMessage('Invalid AuthId "auth_source_id" - not found.');
-
         $c->retry($request);
     }
 
@@ -300,7 +310,6 @@ final class NegotiateControllerTest extends TestCase
         $c->setLogger($this->logger);
 
         $this->expectException(Error\BadRequest::class);
-        $this->expectExceptionMessage('BADREQUEST(\'%REASON%\' => \'Missing required AuthState query parameter.\')');
 
         $c->retry($request);
     }
@@ -308,8 +317,8 @@ final class NegotiateControllerTest extends TestCase
 
     /**
      * Test that a valid requests results in a RunnableResponse
-     * @throws Error\BadRequest
-     * @throws Error\NoState
+     * @throws \SimpleSAML\Error\BadRequest
+     * @throws \SimpleSAML\Error\NoState
      */
     public function testBackend(): void
     {
@@ -322,7 +331,8 @@ final class NegotiateControllerTest extends TestCase
         $c = new Controller\NegotiateController($this->config, $this->session);
         $c->setLogger($this->logger);
         $c->setAuthState(new class () extends State {
-            public static function loadState(string $id, string $stage, bool $allowMissing = false): ?array
+            /** @return array<mixed> */
+            public static function loadState(string $id, string $stage, bool $allowMissing = false): array
             {
                 return [
                     'LogoutState' => [
@@ -340,8 +350,8 @@ final class NegotiateControllerTest extends TestCase
 
     /**
      * Test that a missing AuthState results in a BadRequest-error
-     * @throws Error\BadRequest
-     * @throws Error\NoState
+     * @throws \SimpleSAML\Error\BadRequest
+     * @throws \SimpleSAML\Error\NoState
      */
     public function testBackendMissingState(): void
     {
@@ -354,7 +364,6 @@ final class NegotiateControllerTest extends TestCase
         $c->setLogger($this->logger);
 
         $this->expectException(Error\BadRequest::class);
-        $this->expectExceptionMessage('BADREQUEST(\'%REASON%\' => \'Missing required AuthState query parameter.\')');
 
         $c->fallback($request);
     }

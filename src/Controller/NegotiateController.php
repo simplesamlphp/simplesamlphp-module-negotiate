@@ -116,7 +116,7 @@ class NegotiateController
     /**
      * Get the metadata storage handler instance.
      *
-     * @return MetaDataStorageHandler
+     * @return \SimpleSAML\Metadata\MetaDataStorageHandler
      */
     protected function getMetadataStorageHandler(): MetaDataStorageHandler
     {
@@ -151,7 +151,7 @@ class NegotiateController
      *
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \SimpleSAML\XHTML\Template
-     * @throws Exception
+     * @throws \Exception
      */
     public function enable(Request $request): Template
     {
@@ -180,7 +180,7 @@ class NegotiateController
      *
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \SimpleSAML\XHTML\Template
-     * @throws Exception
+     * @throws \Exception
      */
     public function disable(Request $request): Template
     {
@@ -207,7 +207,7 @@ class NegotiateController
     /**
      * Show retry
      *
-     * @param Request $request The request that lead to this retry operation.
+     * @param \Symfony\Component\HttpFoundation\Request $request The request that lead to this retry operation.
      * @return \SimpleSAML\HTTP\RunnableResponse
      * @throws \Exception
      * @throws \SimpleSAML\Error\BadRequest
@@ -244,7 +244,7 @@ class NegotiateController
     /**
      * Show fallback
      *
-     * @param Request $request The request that lead to this retry operation.
+     * @param \Symfony\Component\HttpFoundation\Request $request The request that lead to this retry operation.
      *
      * @return \SimpleSAML\HTTP\RunnableResponse
      * @throws \SimpleSAML\Error\BadRequest
