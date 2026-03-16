@@ -49,16 +49,13 @@ jobs:
         php-versions: ['8.3', '8.4', '8.5']
 
     steps:
-      - name: Install libkrb5-dev
-        run: sudo apt-get install -y libkrb5-dev
-
       - name: Setup PHP, with composer and extensions
         # https://github.com/shivammathur/setup-php
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: ctype, date, dom, fileinfo, filter, hash, intl, ldap, mbstring, openssl, pcre, sodium, spl, xml\
-            krb5-php/pecl-authentication-krb5@master
+          extensions: ctype, date, dom, fileinfo, filter, hash, intl, krb5, ldap, mbstring, openssl,\
+            pcre, sodium, spl, xml
           tools: composer
           ini-values: error_reporting=E_ALL
           coverage: pcov
@@ -161,9 +158,6 @@ jobs:
     runs-on: [ubuntu-latest]
 
     steps:
-      - name: Install libkrb5-dev
-        run: sudo apt-get install -y libkrb5-dev
-
       - name: Setup PHP, with composer and extensions
         id: setup-php
         # https://github.com/shivammathur/setup-php
@@ -172,8 +166,8 @@ jobs:
           # Should be the higest supported version, so we can use the newest tools
           php-version: '8.5'
           tools: composer, composer-require-checker, composer-unused
-          extensions: ctype, date, dom, fileinfo, filter, hash, intl, ldap, mbstring, openssl, pcre, sodium,\
-            spl, xml, krb5-php/pecl-authentication-krb5@master
+          extensions: ctype, date, dom, fileinfo, filter, hash, intl, krb5, ldap, mbstring, openssl,\
+            pcre, sodium, spl, xml
 
       - name: Setup problem matchers for PHP
         run: echo "::add-matcher::${{ runner.tool_cache }}/php.json"
